@@ -33,6 +33,23 @@ body h1,h2,h3,h4,h5,h6{
 .top-header {
 	padding: 2em 0;
 }
+
+botaozap {
+	box-sizing: border-box;
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	color: white;
+	text-align: center;
+	padding: 6px;
+	background: #25d366;
+	cursor: pointer;
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+	position: fixed;
+	bottom: 50px;
+	right: 50px;
+}
+
 .logo h1 {
     margin: 0;
     text-transform: uppercase;
