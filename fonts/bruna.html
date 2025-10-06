@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosso Amor Eterno</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Variáveis CSS para facilitar a manutenção */
+        :root {
+            --bg-color: #121212;
+            --primary-color: #1DB954; /* Verde Spotify para destaque */
+            --text-color: #ffffff;
+            --secondary-text-color: #b3b3b3;
+            --dark-grey: #1a1a1a;
+            --medium-grey: #282828;
+            --light-grey: #333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0; /* Espaçamento vertical para mobile */
+            box-sizing: border-box;
+            overflow-x: hidden; /* Previne scroll horizontal em mobile */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%; /* Ocupa a largura total em mobile */
+            max-width: 400px; /* Largura máxima para a "moldura" do site */
+            padding: 25px 15px; /* Espaçamento interno */
+            background-color: #000000;
+            border-radius: 20px; /* Bordas arredondadas */
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            min-height: 95vh; /* Garante que preencha a altura quase total */
+            justify-content: space-between; /* Distribui o espaço entre os elementos */
+        }
+
+        /* Quadro da Foto */
+        .photo-frame {
+            width: 100%;
+            max-width: 280px; /* Largura máxima para a foto em si */
+            height: 480px; /* Altura ideal para telas de celular */
+            background-color: var(--light-grey); /* Placeholder */
+            border-radius: 20px; /* Borda arredondada como um "celular" */
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+            margin-bottom: 30px;
+            position: relative;
+            border: 8px solid var(--dark-grey); /* Borda imitando a moldura de um celular */
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Garante que a imagem cubra o espaço */
+            border-radius: 12px; /* Arredondamento interno da imagem */
+        }
+        
+        /* Contador de Amor */
+        .love-counter {
+            text-align: center;
+            width: 100%;
+            margin-bottom: 30px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .love-counter p:first-of-type { /* Texto "Eu te amo há:" */
+            font-size: 1em;
+            color: var(--secondary-text-color);
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1.4;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mensagem Final (Footer) */
+        .footer-message {
+            text-align: center;
+            background-color: var(--medium-grey);
+            padding: 20px 15px;
+            border-radius: 10px;
+        }
+
+        .footer-message p {
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: var(--text-color);
+            margin: 0;
+            font-style: italic;
+        }
+
+        /* Efeitos visuais para o background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top left, rgba(29, 185, 84, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            opacity: 0.3;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="photo-frame">
+            <img src="https://imgur.com/a/i80LTqo" alt="Nossa foto juntos">
+        </div>
+
+        <div class="love-counter">
+            <p>Eu te amo há:</p>
+            <p id="countdown" class="timer">Calculando...</p>
+        </div>
+
+        <footer class="footer-message">
+            <p>
+                Cada dia ao seu lado é um presente que celebro com todo o meu coração. 
+                Desde 05 de novembro de 2017, nossa história se tornou a mais linda melodia. 
+                Que este amor perdure para todo o sempre, crescendo e nos fortalecendo a cada momento!
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = new Date('2017-11-05T00:00:00'); // Data de início do namoro
+            const countdownElement = document.getElementById('countdown');
+
+            function updateCountdown() {
+                const now = new Date();
+                let diff = now - startDate;
+
+                // Constantes para calcular tempo em milissegundos
+                const MS_PER_SECOND = 1000;
+                const MS_PER_MINUTE = MS_PER_SECOND * 60;
+                const MS_PER_HOUR = MS_PER_MINUTE * 60;
+                const MS_PER_DAY = MS_PER_HOUR * 24;
+                const MS_PER_YEAR_APPROX = MS_PER_DAY * 365.25; // Anos bissextos
+                const MS_PER_MONTH_APPROX = MS_PER_DAY * 30.44; // Mês médio
+
+                const years = Math.floor(diff / MS_PER_YEAR_APPROX);
+                diff %= MS_PER_YEAR_APPROX;
+
+                const months = Math.floor(diff / MS_PER_MONTH_APPROX);
+                diff %= MS_PER_MONTH_APPROX;
+
+                const days = Math.floor(diff / MS_PER_DAY);
+                diff %= MS_PER_DAY;
+
+                const hours = Math.floor(diff / MS_PER_HOUR);
+                diff %= MS_PER_HOUR;
+
+                const minutes = Math.floor(diff / MS_PER_MINUTE);
+                diff %= MS_PER_MINUTE;
+
+                const seconds = Math.floor(diff / MS_PER_SECOND);
+
+                countdownElement.innerHTML = 
+                    `<strong>${years}</strong> anos, <strong>${months}</strong> meses, <strong>${days}</strong> dias,<br>` +
+                    `<strong>${String(hours).padStart(2, '0')}</strong>h, <strong>${String(minutes).padStart(2, '0')}</strong>m e <strong>${String(seconds).padStart(2, '0')}</strong>s`;
+            }
+
+            // Inicia o cronômetro imediatamente e atualiza a cada segundo
+            updateCountdown(); 
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
+</body>
+</html>
