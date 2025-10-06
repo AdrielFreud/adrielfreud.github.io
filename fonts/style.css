@@ -1,0 +1,187 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden; /* Prevent scrollbar from blinking if content flickers */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #000000;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+.music-player {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    background-color: #282828;
+    border-radius: 10px;
+    padding: 15px;
+    width: 100%;
+    margin-bottom: 30px;
+    box-sizing: border-box;
+}
+
+.album-art {
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-right: 15px;
+}
+
+.album-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.song-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.song-title {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin: 0;
+}
+
+.artist, .album {
+    font-size: 0.8em;
+    color: #b3b3b3;
+    margin: 0;
+}
+
+.controls .play-pause {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.progress-bar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+    font-size: 0.7em;
+    color: #b3b3b3;
+}
+
+.progress-bar .bar {
+    flex-grow: 1;
+    height: 4px;
+    background-color: #404040;
+    border-radius: 2px;
+    margin: 0 10px;
+    position: relative;
+}
+
+.progress-bar .progress {
+    height: 100%;
+    width: 10%; /* Example progress */
+    background-color: #1DB954; /* Spotify green */
+    border-radius: 2px;
+}
+
+.photo-frame {
+    width: 250px;
+    height: 450px;
+    background-color: #333; /* Placeholder background */
+    border-radius: 25px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+    margin-bottom: 30px;
+    position: relative;
+    border: 8px solid #000; /* mimic phone bezel */
+}
+
+.photo-frame::before { /* Top notch/speaker effect */
+    content: '';
+    position: absolute;
+    top: 10px;
+    width: 60px;
+    height: 8px;
+    background-color: #1a1a1a;
+    border-radius: 5px;
+    z-index: 2;
+}
+
+.photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 17px; /* Inner rounding for image */
+}
+
+/* Add your actual image here or generate one using the AI */
+.photo-frame {
+    background-image: url(''); /* Placeholder, insert your image here */
+    background-size: cover;
+    background-position: center;
+}
+
+
+.love-counter {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.love-counter p:first-child {
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.timer {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #1DB954; /* Spotify green */
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+.message {
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #b3b3b3;
+    max-width: 300px;
+}
+
+/* Optional: Add some subtle background particles for aesthetic */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top left, rgba(29, 185, 84, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    opacity: 0.3;
+    z-index: -1;
+}
