@@ -1,0 +1,1046 @@
+<!doctype html>
+<!--
+  Km em Dia
+  © 2026 Adriel Fernando. Todos os direitos reservados.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E232A">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Km em Dia">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Km em Dia</title>
+<meta name="author" content="Adriel Fernando">
+<meta name="copyright" content="© 2026 Adriel Fernando. Todos os direitos reservados.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: sidebar + conteúdo no desktop; barra de abas inferior no celular. Visual de painel de instrumentos: números condensados, odômetro, vareta de óleo. */
+:root{
+  --bg:#EDEFF2; --surface:#FFFFFF; --surface2:#F4F5F7; --ink:#171B21; --ink2:#4A5361; --line:#D8DCE2;
+  --accent:#2B4C7E; --accent-ink:#FFFFFF; --accent-soft:#E2E9F4;
+  --ok:#1B7A4D; --ok-soft:#DFF2E8; --ok-bar:#2FA36B;
+  --warn:#7F5400; --warn-soft:#FAEFD0; --warn-bar:#D99A0B;
+  --urgent:#B23F0F; --urgent-soft:#FCE5D9; --urgent-bar:#E0622B;
+  --bad:#B42020; --bad-soft:#FBE0E0; --bad-bar:#D13A3A;
+  --oil:#D08A00; --oil2:#F4C95D; --dip-body:#E3E6EB; --dip-line:#8B94A1;
+  --dash:#1E232A; --dash-ink:#F2F4F7; --overlay:rgba(12,15,20,.55);
+  --f-disp:'Barlow Condensed','Arial Narrow',sans-serif;
+  --f-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1216; --surface:#171B21; --surface2:#1E232A; --ink:#E8EBF0; --ink2:#9AA4B2; --line:#2B323B;
+    --accent:#8FB2E8; --accent-ink:#0F1216; --accent-soft:#1E2A3D;
+    --ok:#5FD39B; --ok-soft:#15291F; --ok-bar:#2FA36B;
+    --warn:#F0BE55; --warn-soft:#2D2410; --warn-bar:#D99A0B;
+    --urgent:#FF9A6B; --urgent-soft:#341D12; --urgent-bar:#E0622B;
+    --bad:#FF8484; --bad-soft:#341717; --bad-bar:#D13A3A;
+    --oil:#D08A00; --oil2:#F4C95D; --dip-body:#2A313A; --dip-line:#6B7482;
+    --dash:#0A0C0F; --dash-ink:#F2F4F7; --overlay:rgba(0,0,0,.65);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1216; --surface:#171B21; --surface2:#1E232A; --ink:#E8EBF0; --ink2:#9AA4B2; --line:#2B323B;
+  --accent:#8FB2E8; --accent-ink:#0F1216; --accent-soft:#1E2A3D;
+  --ok:#5FD39B; --ok-soft:#15291F; --ok-bar:#2FA36B;
+  --warn:#F0BE55; --warn-soft:#2D2410; --warn-bar:#D99A0B;
+  --urgent:#FF9A6B; --urgent-soft:#341D12; --urgent-bar:#E0622B;
+  --bad:#FF8484; --bad-soft:#341717; --bad-bar:#D13A3A;
+  --oil:#D08A00; --oil2:#F4C95D; --dip-body:#2A313A; --dip-line:#6B7482;
+  --dash:#0A0C0F; --dash-ink:#F2F4F7; --overlay:rgba(0,0,0,.65);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:auto}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:40}
+body.lock{overflow:hidden}
+h1,h2,h3,p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.muted{color:var(--ink2)}
+.num{font-variant-numeric:tabular-nums}
+.disp{font-family:var(--f-disp);letter-spacing:.01em}
+
+/* ---------- Estrutura ---------- */
+#app{min-height:100%}
+.side{display:none}
+.page{
+  max-width:1160px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 120px;
+}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding-block:14px 10px}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.top h1{font-family:var(--f-disp);font-weight:700;font-size:30px;line-height:1;letter-spacing:.01em}
+.top-r{display:flex;align-items:center;gap:8px;min-width:0}
+.vsel{max-width:210px;min-height:40px;padding:0 30px 0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;font-weight:500;text-overflow:ellipsis}
+.icon-btn{position:relative;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);background:var(--surface);border-radius:10px}
+.icon-btn:hover{background:var(--surface2)}
+.icon-btn.flat{border-color:transparent;background:transparent;width:36px;height:36px}
+.dot{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--bad-bar);color:#fff;font-size:12px;font-weight:600;display:grid;place-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:var(--surface2);filter:none}
+.btn.sm{min-height:34px;padding:0 12px;font-size:14px}
+.btn.danger{background:var(--bad-bar);border-color:var(--bad-bar);color:#fff}
+.hide-m{display:none}
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:25;height:52px;padding:0 20px;border-radius:26px;box-shadow:var(--shadow)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line);
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:10px;text-decoration:none;color:var(--ink2);font-size:11.5px;font-weight:500;min-width:0}
+.tabbar a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.tabbar a[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+
+@media (min-width:960px){
+  #app{display:grid;grid-template-columns:248px minmax(0,1fr)}
+  .side{display:block;background:var(--surface);border-right:1px solid var(--line)}
+  .side-in{position:sticky;top:0;padding:24px 16px;display:flex;flex-direction:column;gap:22px;min-height:100vh}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+  .brand-mark{width:38px;height:38px;border-radius:10px;background:var(--dash);color:var(--oil2);display:grid;place-items:center}
+  .brand b{font-family:var(--f-disp);font-size:26px;font-weight:700;line-height:1}
+  .side nav{display:flex;flex-direction:column;gap:4px}
+  .side nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;text-decoration:none;font-weight:500;color:var(--ink2)}
+  .side nav a:hover{background:var(--surface2)}
+  .side nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+  .side-foot{margin-top:auto;font-size:13px;color:var(--ink2);line-height:1.4}
+  .tabbar,.fab{display:none}
+  .hide-m{display:inline-flex}
+  .page{padding-block:0 56px}
+  .top{padding-block:24px 14px}
+  .top h1{font-size:38px}
+}
+.brand{display:none}
+@media (min-width:960px){.brand{display:flex}}
+
+/* ---------- Componentes ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.card-h h2{font-family:var(--f-disp);font-size:22px;font-weight:600;letter-spacing:.01em;line-height:1.1}
+.eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;color:var(--ink2)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;background:var(--cs);color:var(--c);font-size:12.5px;font-weight:600;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cb)}
+.tag{display:inline-block;padding:1px 8px;border-radius:6px;background:var(--surface2);border:1px solid var(--line);font-size:12.5px;color:var(--ink2)}
+.l0{--c:var(--ok);--cs:var(--ok-soft);--cb:var(--ok-bar)}
+.l1{--c:var(--warn);--cs:var(--warn-soft);--cb:var(--warn-bar)}
+.l2{--c:var(--urgent);--cs:var(--urgent-soft);--cb:var(--urgent-bar)}
+.l3{--c:var(--bad);--cs:var(--bad-soft);--cb:var(--bad-bar)}
+.lx{--c:var(--ink2);--cs:var(--surface2);--cb:var(--line)}
+.ib{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--cs);color:var(--c);flex:none}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--cb);border-radius:3px}
+.seg{display:inline-flex;padding:3px;border-radius:12px;background:var(--surface);border:1px solid var(--line);gap:2px;max-width:100%;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:8px 14px;border-radius:9px;font-weight:600;color:var(--ink2);min-height:36px}
+.seg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);padding:5px 12px;border-radius:99px;font-size:13.5px;font-weight:500;color:var(--ink2);min-height:32px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip b{font-variant-numeric:tabular-nums;margin-left:4px}
+.proto{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:12px;background:var(--accent-soft);color:var(--ink);font-size:14px;margin-bottom:16px}
+.proto button{background:none;border:0;text-decoration:underline;font-weight:600;color:var(--accent);padding:4px}
+.stack-grid{display:grid;gap:16px}
+
+/* Painel */
+.grid-p{display:grid;gap:16px;grid-template-areas:"hero" "odo" "alerts" "next" "docs" "recent";min-width:0}
+.grid-p>*{min-width:0}
+.a-hero{grid-area:hero}.a-odo{grid-area:odo}.a-alerts{grid-area:alerts}.a-next{grid-area:next}.a-docs{grid-area:docs}.a-recent{grid-area:recent}
+@media (min-width:960px){
+  .grid-p{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-template-areas:"hero odo" "alerts next" "alerts docs" "recent recent";align-items:start}
+}
+.hero{position:relative;overflow:hidden}
+.hero .big{font-family:var(--f-disp);font-weight:700;font-size:clamp(56px,13vw,84px);line-height:.95;color:var(--c);letter-spacing:.005em}
+.hero .big small{font-size:.38em;font-weight:600;color:var(--ink2);margin-left:6px;letter-spacing:.04em}
+.hero-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.hero-cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.hero-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 18px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font-size:14px}
+.hero-meta span{display:block;font-size:12px;color:var(--ink2);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.dip{display:block;width:100%;max-width:520px;height:auto;margin-top:14px}
+.dip-ring{fill:none;stroke:var(--dip-line);stroke-width:3}
+.dip-body{fill:var(--dip-body);stroke:var(--dip-line);stroke-width:1.5}
+.dip-tick{stroke:var(--ink2);stroke-width:1.5}
+.dip-t{font:600 11px var(--f-body);fill:var(--ink2);letter-spacing:.08em}
+.dip-mark{fill:var(--ink)}
+.hatch{fill:var(--dip-line);opacity:.55}
+.odo{display:flex;align-items:center;gap:4px}
+.odo .dg{width:34px;height:50px;display:grid;place-items:center;background:var(--dash);color:var(--dash-ink);font:500 30px var(--f-mono);border-radius:5px;box-shadow:inset 0 -10px 12px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08)}
+.odo .dg.last{background:#8A5B00;color:#fff}
+.odo small{font:600 14px var(--f-body);color:var(--ink2);margin-left:6px}
+.odo-meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:14px}
+.odo-meta b{font-family:var(--f-disp);font-size:22px;font-weight:600;display:block;line-height:1.1}
+.spark{display:block;width:100%;height:56px;margin-top:12px}
+.spark path{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.spark .area{fill:var(--accent-soft);stroke:none}
+.spark circle{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.sumbar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin-bottom:10px}
+.sumbar i{display:block;background:var(--cb);min-width:6px}
+.legend{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:13.5px;margin-bottom:14px;color:var(--ink2)}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--cb);margin-right:6px}
+.legend b{color:var(--ink);font-variant-numeric:tabular-nums}
+.arow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.arow:first-child{border-top:0;padding-top:4px}
+.arow h3{font-size:16px;font-weight:600;line-height:1.2}
+.arow .sub{font-size:13px;color:var(--ink2)}
+.arow .act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.arow .ms{grid-column:2 / -1;display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:560px){.arow{grid-template-columns:40px minmax(0,1fr)}.arow .act{grid-column:2 / -1;justify-content:flex-start}.tl li{grid-template-columns:48px minmax(0,1fr)}.tl .r{grid-column:2 / -1;text-align:left}}
+.arow .pb{grid-column:2 / -1}
+.m{background:var(--cs);color:var(--c);border-radius:10px;padding:6px 10px;min-width:0;flex:1 1 130px}
+.m b{display:block;font-family:var(--f-disp);font-size:20px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.m span{display:block;font-size:12.5px;color:var(--ink2)}
+.empty{padding:22px 10px;text-align:center;color:var(--ink2)}
+.empty b{display:block;font-family:var(--f-disp);font-size:22px;color:var(--ink);font-weight:600}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.tl li:first-child{border-top:0}
+.tl .d{text-align:center;line-height:1;font-family:var(--f-disp);background:var(--cs);color:var(--c);border-radius:8px;padding:6px 0}
+.tl .d b{display:block;font-size:22px;font-weight:700}
+.tl .d span{font-size:12px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--f-body);font-weight:600}
+.tl h3{font-size:15px;font-weight:600;line-height:1.2}
+.tl small{color:var(--ink2);font-size:13px}
+.tl .r{font-size:13px;color:var(--ink2);text-align:right}
+
+/* Manutenções */
+.group-h{font-family:var(--f-disp);font-size:20px;font-weight:600;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.plist{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))}
+.prow{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.prow.off{opacity:.72}
+.prow-h{display:flex;gap:12px;align-items:center}
+.prow-h .g{min-width:0;flex:1}
+.prow-h b{display:block;font-weight:600;line-height:1.2}
+.prow-h small{color:var(--ink2);font-size:13px}
+.prow-i{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:14px}
+.prow-i label{display:flex;align-items:center;gap:6px}
+.prow-i input{width:92px}
+.prow-i input.mo{width:64px}
+.prow-n{font-size:13.5px;color:var(--ink2);display:flex;flex-direction:column;gap:2px}
+.prow-n b{color:var(--ink);font-weight:600}
+.sw{position:relative;display:inline-block;width:46px;height:26px;flex:none}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;width:100%;height:100%}
+.sw span{position:absolute;inset:0;border-radius:13px;background:var(--line);transition:background .15s}
+.sw span::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.sw input:checked+span{background:var(--accent)}
+.sw input:checked+span::after{transform:translateX(20px)}
+.sw input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.filters{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:16px 0}
+.yh{font-family:var(--f-disp);font-size:20px;font-weight:600;margin:18px 0 8px;color:var(--ink2)}
+.rec{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.rec-d{text-align:center;font-family:var(--f-disp);line-height:1;background:var(--surface2);border-radius:10px;padding:8px 0;align-self:start}
+.rec-d b{display:block;font-size:26px;font-weight:700}
+.rec-d span{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink2);font-weight:600;font-family:var(--f-body)}
+.rec-m{min-width:0;display:flex;flex-direction:column;gap:6px}
+.rec-m .chips{gap:6px}
+.rchip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--ink);padding:3px 10px 3px 8px;border-radius:8px;font-size:13.5px;font-weight:500}
+.rchip .ic{width:15px;height:15px;color:var(--accent)}
+.rec .meta{font-size:14px;color:var(--ink2);display:flex;gap:4px 12px;flex-wrap:wrap}
+.rec .meta b{color:var(--ink);font-weight:600}
+.rec .note{font-size:14px}
+.rec-a{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.rec-a .btn{white-space:normal}
+@media (max-width:520px){
+  .rec{grid-template-columns:48px minmax(0,1fr)}
+  .rec-a{grid-column:1 / -1;flex-direction:row;justify-content:flex-end}
+}
+
+/* Custos */
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.kpi b{display:block;font-family:var(--f-disp);font-size:30px;font-weight:700;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--ink2);font-size:13px}
+.cols2{display:grid;gap:16px;margin-top:16px}
+@media (min-width:960px){.cols2{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}}
+.bars{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;align-items:end;height:200px;padding-top:6px;
+  background:repeating-linear-gradient(to top,transparent 0,transparent calc(25% - 1px),var(--line) calc(25% - 1px),var(--line) 25%)}
+.bars .c{display:flex;flex-direction:column;justify-content:flex-end;height:100%;align-items:center;min-width:0}
+.bars .v{font-size:11px;color:var(--ink2);margin-bottom:3px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.bars .b{width:100%;max-width:34px;background:var(--accent);border-radius:5px 5px 0 0;min-height:2px}
+.bars .c.z .b{background:var(--line)}
+.bars .c.mx .b{background:var(--oil)}
+.mlabels{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;margin-top:6px;font-size:11.5px;color:var(--ink2);text-align:center}
+.hb{display:grid;grid-template-columns:minmax(80px,120px) minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;font-size:14px}
+.hb .bar{height:10px}
+.hb .bar i{background:var(--accent)}
+.hb b{font-variant-numeric:tabular-nums;font-weight:600}
+.toplist{list-style:none;margin:0;padding:0}
+.toplist li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.toplist li:first-child{border-top:0}
+.toplist small{display:block;color:var(--ink2)}
+.toplist b{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* Carro */
+.car-head{display:grid;gap:18px;align-items:center}
+@media (min-width:720px){.car-head{grid-template-columns:minmax(0,300px) minmax(0,1fr)}}
+.car-art{color:var(--ink2);background:var(--surface2);border-radius:14px;padding:16px 10px 8px}
+.car-art svg{display:block;width:100%;height:auto}
+.plate{display:inline-flex;flex-direction:column;align-items:stretch;border:2px solid var(--ink);border-radius:8px;overflow:hidden;background:#fff;color:#111;min-width:150px}
+.plate i{background:#1D4FB8;color:#fff;font:600 10px var(--f-body);font-style:normal;letter-spacing:.2em;text-align:center;padding:2px 0}
+.plate b{font:500 28px var(--f-mono);letter-spacing:.08em;text-align:center;padding:2px 12px 4px;text-transform:uppercase}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px 18px;margin-top:14px}
+.facts span{display:block;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);font-weight:600}
+.facts b{font-weight:600}
+.fgrp{margin-top:18px}
+.fgrp h3{font-family:var(--f-disp);font-size:20px;font-weight:600;margin-bottom:10px}
+.fgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13.5px;font-weight:600;color:var(--ink2);min-width:0}
+label.f.full{grid-column:1 / -1}
+input[type=text],input[type=number],input[type=date],input[type=time],input[type=search],select,textarea{
+  width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-size:16px;font-weight:400;min-width:0}
+textarea{min-height:76px;resize:vertical}
+select{appearance:none;padding-right:34px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);
+  background-position:calc(100% - 17px) 50%,calc(100% - 12px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.prow-i input[type=number]{min-height:38px;padding:5px 8px;font-size:15px}
+.vlist{display:grid;gap:8px;margin-top:10px}
+.vitem{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface)}
+.vitem[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.vitem b{font-weight:600}
+.vitem small{display:block;color:var(--ink2)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+
+/* Ajustes */
+.srow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.srow:first-of-type{border-top:0}
+.srow .t{min-width:0}
+.srow b{display:block;font-weight:600}
+.srow small{color:var(--ink2);font-size:13.5px;display:block}
+.srow input[type=number],.srow input[type=time],.srow select{width:130px;flex:none}
+.notif{display:flex;gap:12px;align-items:flex-start;background:var(--surface2);border:1px solid var(--line);border-radius:16px;padding:12px 14px;max-width:420px}
+.notif .app{width:36px;height:36px;border-radius:9px;background:var(--dash);color:var(--oil2);display:grid;place-items:center;flex:none}
+.notif b{display:block;font-size:14px}
+.notif p{font-size:14px}
+.notif small{color:var(--ink2);font-size:12px}
+.set-grid{display:grid;gap:16px}
+@media (min-width:960px){.set-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
+
+/* Modal e toast */
+.ov{position:fixed;inset:0;z-index:50;background:var(--overlay);display:grid;place-items:end center;overscroll-behavior:contain}
+.sheet{background:var(--surface);width:min(680px,100%);max-height:94%;overflow:auto;border-radius:20px 20px 0 0;
+  padding:20px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));box-shadow:var(--shadow)}
+@media (min-width:720px){.ov{place-items:center}.sheet{border-radius:20px;max-height:90%;padding:24px}}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.sheet-h h2{font-family:var(--f-disp);font-size:28px;font-weight:700;line-height:1}
+.chkgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr))}
+label.chk{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14.5px;min-height:44px;cursor:pointer}
+label.chk input{width:18px;height:18px;accent-color:var(--accent);flex:none}
+label.chk:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+label.chk small{display:block;color:var(--ink2);font-size:12px}
+.preview{background:var(--surface2);border-radius:12px;padding:12px 14px;font-size:14px;display:grid;gap:6px}
+.preview div{display:flex;justify-content:space-between;gap:12px}
+.preview div span:last-child{text-align:right;color:var(--ink2)}
+.err{color:var(--bad);font-weight:600;font-size:14px;min-height:20px}
+.ta-export{font:13px var(--f-mono);min-height:240px}
+#toast{position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (min-width:960px){#toast{bottom:28px}}
+#push{position:fixed;left:50%;transform:translate(-50%,-30px);top:calc(12px + env(safe-area-inset-top,0px));z-index:80;width:min(420px,calc(100% - 32px));opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#push.show{opacity:1;transform:translate(-50%,0)}
+#push .notif{background:var(--surface);box-shadow:var(--shadow)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c3.5 4.2 6 7.2 6 10.2A6 6 0 0 1 6 13.2C6 10.2 8.5 7.2 12 3z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="14" rx="2"/><path d="M8 6V3.5h8V6M6 11h12M6 16h12"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h6"/></symbol>
+  <symbol id="i-fuel" viewBox="0 0 24 24"><path d="M5 20V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v15M4 20h11M7 8h5M14 9h2.5a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 0 3 0V9l-2.5-2.5"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M7 8h10v4a5 5 0 0 1-10 0V8zM12 17v4"/></symbol>
+  <symbol id="i-disc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/></symbol>
+  <symbol id="i-pad" viewBox="0 0 24 24"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M7 16h10v4H7z"/><path d="M12 8V5"/></symbol>
+  <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M10 14V5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></symbol>
+  <symbol id="i-belt" viewBox="0 0 24 24"><path d="M7 8h10a4 4 0 0 1 0 8H7a4 4 0 0 1 0-8z"/><circle cx="7" cy="12" r="1.5"/><circle cx="17" cy="12" r="1.5"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></symbol>
+  <symbol id="i-tire" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 8.5V3M15 13.8l4.8 2.8M9 13.8l-4.8 2.8"/></symbol>
+  <symbol id="i-battery" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5h3v2M14 7V5h3v2M8 13h4M15 13h2"/></symbol>
+  <symbol id="i-wiper" viewBox="0 0 24 24"><path d="M3 17a11 11 0 0 1 18 0"/><path d="M12 17l5-9"/></symbol>
+  <symbol id="i-align" viewBox="0 0 24 24"><path d="M6 4v16M18 4v16M6 12h12M3 8l3-3 3 3M15 16l3 3 3-3"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9l-3.8 3.8z"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M4 15v-3l2-5a2 2 0 0 1 1.9-1.3h8.2A2 2 0 0 1 18 7l2 5v3"/><path d="M3 15h18v3H3zM7 18v1.5M17 18v1.5M6.5 12h11"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 17a8.5 8.5 0 1 1 16 0"/><path d="M12 14l4-5"/><circle cx="12" cy="14" r="1.3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h8M18 7h2M4 17h2M12 17h8"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17v.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></symbol>
+  <symbol id="i-oilcan" viewBox="0 0 24 24"><path d="M3 9h10l3 3h4M8 9V6h5M5 9l1 8h8l1-5"/><path d="M20 12l1 3a1 1 0 0 1-2 0z"/></symbol>
+</svg>
+
+<div id="app">
+  <aside class="side"><div class="side-in">
+    <div class="brand"><span class="brand-mark"><svg class="ic"><use href="#i-oilcan"/></svg></span><b>Km em Dia</b></div>
+    <nav id="nav-side" aria-label="Principal"></nav>
+    <p class="side-foot">Protótipo com dados de exemplo. O que você cadastra fica salvo só neste navegador.<br><br>© 2026 Adriel Fernando.<br>Todos os direitos reservados.</p>
+  </div></aside>
+  <main>
+    <div class="page">
+      <header class="top"><div class="top-in">
+        <h1 id="h-title">Painel</h1>
+        <div class="top-r">
+          <select id="vsel" class="vsel" data-act="vsel" aria-label="Veículo ativo"></select>
+          <button class="icon-btn" data-act="bell" aria-label="Ver alertas"><svg class="ic"><use href="#i-bell"/></svg><b class="dot" id="bell-n" hidden>0</b></button>
+          <button class="btn hide-m" data-act="rec-new"><svg class="ic"><use href="#i-plus"/></svg>Registrar manutenção</button>
+        </div>
+      </div></header>
+      <div id="view"></div>
+    </div>
+  </main>
+</div>
+<button class="btn fab" data-act="rec-new" aria-label="Registrar manutenção"><svg class="ic"><use href="#i-plus"/></svg>Registrar</button>
+<nav class="tabbar" id="nav-tab" aria-label="Principal"></nav>
+<div id="modal-root"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="push" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+/* ================= Utilidades ================= */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const nf=new Intl.NumberFormat('pt-BR');
+const brl=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+const fmt=n=>nf.format(Math.round(n));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const p=String(s).split('-').map(Number);return new Date(p[0],p[1]-1,p[2],12)};
+const TODAY=parse(iso(new Date()));
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const addMonths=(d,n)=>{const x=new Date(d);const day=x.getDate();x.setDate(1);x.setMonth(x.getMonth()+n);const last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(day,last));return x};
+const diffDays=(a,b)=>Math.round((a-b)/864e5);
+const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const fdate=d=>pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
+const fshort=d=>d.getDate()+' '+MES[d.getMonth()]+' '+d.getFullYear();
+const plural=(n,a,b)=>n===1?a:b;
+const daysTxt=d=>Math.abs(d)+' '+plural(Math.abs(d),'dia','dias');
+const uid=()=>Math.random().toString(36).slice(2,9);
+const kfmt=n=>n>=1000?(n/1000).toFixed(n%1000===0?0:1).replace('.',',')+'k':String(Math.round(n));
+const ic=(n,c)=>'<svg class="ic'+(c?' '+c:'')+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';
+
+/* ================= Catálogo ================= */
+const GROUPS=['Motor e fluidos','Freios','Transmissão','Pneus e suspensão','Elétrica e conforto'];
+const ITEMS=[
+ {id:'oil',n:'Óleo do motor',ic:'drop',g:0,km:10000,mo:12,sev:1},
+ {id:'oilf',n:'Filtro de óleo',ic:'filter',g:0,km:10000,mo:12,sev:1},
+ {id:'airf',n:'Filtro de ar do motor',ic:'wind',g:0,km:20000,mo:24,sev:1},
+ {id:'fuelf',n:'Filtro de combustível',ic:'fuel',g:0,km:30000,mo:36},
+ {id:'spark',n:'Velas de ignição',ic:'plug',g:0,km:40000,mo:48},
+ {id:'coolant',n:'Líquido de arrefecimento',ic:'thermo',g:0,km:40000,mo:36},
+ {id:'timing',n:'Correia dentada',ic:'belt',g:0,km:60000,mo:60},
+ {id:'accbelt',n:'Correia de acessórios',ic:'belt',g:0,km:60000,mo:null},
+ {id:'brakef',n:'Fluido de freio',ic:'drop',g:1,km:null,mo:24},
+ {id:'pads',n:'Pastilhas de freio',ic:'pad',g:1,km:30000,mo:null},
+ {id:'discs',n:'Discos de freio',ic:'disc',g:1,km:60000,mo:null},
+ {id:'gearoil',n:'Óleo do câmbio',ic:'gear',g:2,km:60000,mo:null},
+ {id:'tirerot',n:'Rodízio de pneus',ic:'tire',g:3,km:10000,mo:6},
+ {id:'align',n:'Alinhamento e balanceamento',ic:'align',g:3,km:10000,mo:12},
+ {id:'tires',n:'Troca de pneus',ic:'tire',g:3,km:50000,mo:60},
+ {id:'susp',n:'Amortecedores',ic:'wrench',g:3,km:60000,mo:null},
+ {id:'battery',n:'Bateria',ic:'battery',g:4,km:null,mo:48},
+ {id:'cabf',n:'Filtro do ar-condicionado',ic:'wind',g:4,km:10000,mo:12,sev:1},
+ {id:'wipers',n:'Palhetas do limpador',ic:'wiper',g:4,km:null,mo:12}
+];
+const ITEM=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
+const CATS=['Preventiva','Corretiva','Pneus e rodas','Outros'];
+const DOCS=[['licensing','Licenciamento anual'],['ipva','IPVA'],['insurance','Seguro']];
+const LV=['Em dia','Atenção','Urgente','Vencido'];
+
+/* ================= Dados de exemplo ================= */
+const ANCHOR=parse('2026-10-30');
+const SHIFT=diffDays(TODAY,ANCHOR);
+const sd=s=>iso(addDays(parse(s),SHIFT));
+const mkPlan=(off)=>Object.fromEntries(ITEMS.map(i=>[i.id,{on:!(off||[]).includes(i.id),km:i.km,mo:i.mo}]));
+const R=(date,km,items,cost,cat,shop,prod,notes,other)=>({id:uid(),date:sd(date),km:km,items:items,other:other||'',cost:cost,cat:cat,shop:shop||'',prod:prod||'',notes:notes||''});
+
+function seed(){
+  const v1={id:'v1',nick:'Polo do dia a dia',make:'Volkswagen',model:'Polo',version:'Highline 200 TSI',yearMfg:'2021',yearModel:'2021',color:'Prata',plate:'RTK4B21',
+    fuel:'Flex',engine:'1.0 TSI 12V turbo',power:'128 cv (etanol)',gearbox:'Automático',vin:'',
+    oilCap:'4,0 L',oilSpec:'SAE 5W-40 · VW 502 00',oilFilterRef:'Conforme manual',tire:'195/55 R16',pressF:'34 psi',pressR:'32 psi',battery:'60 Ah',tank:'52 L',
+    purchase:sd('2021-06-01'),initialKm:0,
+    docs:{licensing:sd('2026-11-25'),ipva:sd('2027-01-15'),insurance:sd('2027-04-20')},
+    plan:mkPlan(['timing']),
+    odo:[{date:sd('2026-10-02'),km:57700},{date:sd('2026-10-30'),km:58420}],
+    records:[
+      R('2022-03-10',9900,['oil','oilf','cabf'],520,'Preventiva','Concessionária VW Centro','Óleo 5W-40 VW 502 00 (4 L)','Revisão dos 10 mil km.'),
+      R('2023-01-14',19800,['oil','oilf','airf','cabf','tirerot','align'],1140,'Preventiva','Concessionária VW Centro','Óleo 5W-40 (4 L)','Revisão dos 20 mil km.'),
+      R('2023-12-09',28600,['oil','oilf','cabf','brakef'],890,'Preventiva','Auto Center Silva','Castrol Edge 5W-40 (4 L)',''),
+      R('2024-10-26',38900,['oil','oilf','airf','fuelf','spark','coolant','cabf','tirerot','align','battery'],3480,'Preventiva','Auto Center Silva','Castrol Edge 5W-40 (4 L); bateria 60 Ah','Revisão dos 40 mil km. Velas NGK.'),
+      R('2025-03-08',43100,['pads','tires','align'],4200,'Pneus e rodas','Pneus Express','Pastilhas dianteiras; 4 pneus 195/55 R16','Pastilhas estavam com pouca vida.'),
+      R('2025-11-20',49300,['oil','oilf','airf','cabf'],1180,'Preventiva','Auto Center Silva','Castrol Edge 5W-40 (4 L)','Fluido de freio ficou para a próxima visita.'),
+      R('2026-01-24',50900,[],640,'Corretiva','Auto Elétrica Paraná','','','Troca da lâmpada do farol e higienização do ar-condicionado'),
+      R('2026-05-02',54200,['tirerot','align','wipers'],410,'Preventiva','Pneus Express','Palhetas novas',''),
+      R('2026-08-14',56100,[],220,'Corretiva','Auto Elétrica Paraná','','','Reparo da trava da porta traseira')
+    ]};
+  const v2={id:'v2',nick:'Strada de trabalho',make:'Fiat',model:'Strada',version:'Freedom 1.3 Cabine Plus',yearMfg:'2020',yearModel:'2020',color:'Branca',plate:'QXA9D07',
+    fuel:'Flex',engine:'1.3 Firefly 8V',power:'109 cv (etanol)',gearbox:'Manual',vin:'',
+    oilCap:'3,0 L',oilSpec:'SAE 5W-30 · Fiat 9.55535',oilFilterRef:'Conforme manual',tire:'195/65 R15',pressF:'33 psi',pressR:'36 psi',battery:'60 Ah',tank:'55 L',
+    purchase:sd('2020-02-10'),initialKm:0,
+    docs:{licensing:sd('2027-03-31'),ipva:sd('2027-01-15'),insurance:sd('2027-02-10')},
+    plan:mkPlan(['spark','fuelf','discs','gearoil','tires','susp','battery','wipers']),
+    odo:[{date:sd('2026-10-30'),km:91200}],
+    records:[
+      R('2024-07-04',74000,['oil','oilf','timing','accbelt','coolant'],2750,'Preventiva','Auto Center Central','Óleo 5W-30 (3 L)','Kit de correia dentada completo.'),
+      R('2025-06-12',83600,['oil','oilf','airf','cabf','brakef','pads'],1980,'Preventiva','Auto Center Central','Óleo 5W-30 (3 L)',''),
+      R('2026-07-20',89900,['oil','oilf','tirerot','align'],740,'Preventiva','Auto Center Central','Óleo 5W-30 (3 L)','')
+    ]};
+  return{vehicles:[v1,v2],activeId:'v1',settings:{alertKm:1500,alertDays:30,urgentKm:500,urgentDays:7,severe:false,kmDayMode:'auto',kmDayManual:25,push:true,email:false,weekly:true,hour:'08:00'}};
+}
+
+/* ================= Estado ================= */
+const KEY='km-em-dia:v1';
+let S;
+function load(){try{const t=localStorage.getItem(KEY);if(!t)return null;const o=JSON.parse(t);return(o&&Array.isArray(o.vehicles)&&o.vehicles.length&&o.settings)?o:null}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+S=load()||seed();
+const UI={seg:'plano',af:'pend',q:'',fItem:'',fYear:'',del:null,delVeh:null,proto:true};
+const V=()=>S.vehicles.find(v=>v.id===S.activeId)||S.vehicles[0];
+
+/* ================= Cálculos ================= */
+function readings(v){
+  const a=(v.odo||[]).concat(v.records.map(r=>({date:r.date,km:r.km})));
+  return a.sort((x,y)=>x.date<y.date?-1:x.date>y.date?1:x.km-y.km);
+}
+function curKm(v){return Math.max(v.initialKm||0,...readings(v).map(r=>r.km))}
+function lastReading(v){const r=readings(v);return r[r.length-1]}
+function kmDayInfo(v){
+  const st=S.settings,man=Math.max(1,Number(st.kmDayManual)||25);
+  if(st.kmDayMode==='manual')return{v:man,src:'manual'};
+  const lim=addDays(TODAY,-365),rs=readings(v).filter(r=>parse(r.date)>=lim);
+  if(rs.length<2)return{v:man,src:'manual'};
+  const a=rs[0],b=rs[rs.length-1],span=diffDays(parse(b.date),parse(a.date));
+  if(span<30||b.km<=a.km)return{v:man,src:'manual'};
+  return{v:Math.max(1,(b.km-a.km)/span),src:'calculada'};
+}
+function lastRec(v,id){
+  return v.records.filter(r=>r.items.includes(id)).sort((a,b)=>b.date.localeCompare(a.date)||b.km-a.km)[0]||null;
+}
+function ivKm(it,p){if(!p||!p.km)return null;const f=(S.settings.severe&&it.sev)?0.7:1;return Math.max(50,Math.round(p.km*f/50)*50)}
+function ivMo(it,p){if(!p||!p.mo)return null;const f=(S.settings.severe&&it.sev)?0.7:1;return Math.max(1,Math.round(p.mo*f))}
+const lvl=(rem,u,a)=>rem==null?0:rem<0?3:rem<=u?2:rem<=a?1:0;
+function status(v,it){
+  const p=v.plan[it.id];if(!p||!p.on)return null;
+  const st=S.settings,cur=curKm(v),kd=kmDayInfo(v).v;
+  const last=lastRec(v,it.id);
+  const base=last?{km:last.km,date:parse(last.date)}:{km:v.initialKm||0,date:parse(v.purchase||iso(TODAY))};
+  const k=ivKm(it,p),m=ivMo(it,p);
+  const dueKm=k?base.km+k:null,dueDate=m?addMonths(base.date,m):null;
+  const remKm=dueKm==null?null:dueKm-cur;
+  const remDays=dueDate==null?null:diffDays(dueDate,TODAY);
+  const lk=lvl(remKm,st.urgentKm,st.alertKm),lt=lvl(remDays,st.urgentDays,st.alertDays);
+  const kmPct=dueKm?(cur-base.km)/(dueKm-base.km):0;
+  const tPct=dueDate?diffDays(TODAY,base.date)/Math.max(1,diffDays(dueDate,base.date)):0;
+  const pct=Math.max(kmPct,tPct);
+  let estK=remKm!=null?addDays(TODAY,Math.max(0,Math.ceil(remKm/kd))):null,est=null,driver=null;
+  if(dueDate&&estK){if(dueDate<=estK){est=dueDate;driver='tempo'}else{est=estK;driver='km'}}
+  else if(dueDate){est=dueDate;driver='tempo'}else if(estK){est=estK;driver='km'}
+  if(est&&est<TODAY)est=TODAY;
+  return{it,p,last,base,dueKm,dueDate,remKm,remDays,lk,lt,level:Math.max(lk,lt),pct,est,estDays:est?diffDays(est,TODAY):9999,driver,kd};
+}
+function statuses(v){
+  return ITEMS.map(it=>status(v,it)).filter(Boolean).sort((a,b)=>b.level-a.level||a.estDays-b.estDays);
+}
+function docStatuses(v){
+  return DOCS.filter(d=>v.docs&&v.docs[d[0]]).map(d=>{
+    const dt=parse(v.docs[d[0]]),days=diffDays(dt,TODAY);
+    return{k:d[0],n:d[1],dt:dt,days:days,level:lvl(days,S.settings.urgentDays,S.settings.alertDays)};
+  }).sort((a,b)=>a.days-b.days);
+}
+function alertCount(v){return statuses(v).filter(s=>s.level>=1).length+docStatuses(v).filter(d=>d.level>=1).length}
+
+/* ================= Peças de UI ================= */
+function odoHtml(km){
+  const s=String(Math.round(km)).padStart(6,'0');
+  return '<div class="odo" role="img" aria-label="'+fmt(km)+' quilômetros">'+Array.from(s).map((c,i)=>'<span class="dg'+(i===5?' last':'')+'">'+c+'</span>').join('')+'<small>km</small></div>';
+}
+function dipstick(p){
+  const x0=44,x1=392,L=x1-x0,lx=x1-p*L,mn=x1-.2*L,mx=x1-.8*L;
+  return '<svg class="dip" viewBox="0 0 410 74" role="img" aria-label="Nível de óleo estimado entre mínimo e máximo">'+
+  '<defs><linearGradient id="oilg" x1="0" x2="1"><stop offset="0" style="stop-color:var(--oil2)"/><stop offset="1" style="stop-color:var(--oil)"/></linearGradient>'+
+  '<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect class="hatch" width="1.4" height="6"/></pattern>'+
+  '<clipPath id="stk"><rect x="'+x0+'" y="32" width="'+L+'" height="14" rx="7"/></clipPath></defs>'+
+  '<circle class="dip-ring" cx="22" cy="39" r="15"/><rect class="dip-ring" x="36" y="37" width="10" height="4" style="fill:var(--dip-line);stroke:none"/>'+
+  '<rect class="dip-body" x="'+x0+'" y="32" width="'+L+'" height="14" rx="7"/>'+
+  '<g clip-path="url(#stk)"><rect x="'+mx+'" y="32" width="'+(mn-mx)+'" height="14" fill="url(#hatch)"/><rect x="'+lx+'" y="32" width="'+(x1-lx)+'" height="14" fill="url(#oilg)"/></g>'+
+  '<path class="dip-tick" d="M'+mn+' 26v26M'+mx+' 26v26"/>'+
+  '<text class="dip-t" x="'+mn+'" y="18" text-anchor="middle">MÍN</text><text class="dip-t" x="'+mx+'" y="18" text-anchor="middle">MÁX</text>'+
+  '<path class="dip-mark" d="M'+lx+' 50l-6 10h12z"/></svg>';
+}
+function metrics(s){
+  let h='';
+  if(s.dueKm!=null){const o=s.remKm<0;h+='<div class="m l'+s.lk+'"><b>'+fmt(Math.abs(s.remKm))+' km</b><span>'+(o?'além do limite':'restantes')+' · '+fmt(s.dueKm)+' km</span></div>'}
+  if(s.dueDate){const d=s.remDays,o=d<0;h+='<div class="m l'+s.lt+'"><b>'+(d===0?'Hoje':daysTxt(d))+'</b><span>'+(o?'em atraso':'restantes')+' · '+fdate(s.dueDate)+'</span></div>'}
+  return h;
+}
+function lastTxt(s){return s.last?'Última: '+fdate(parse(s.last.date))+' · '+fmt(s.last.km)+' km':'Sem registro · contado desde a compra'}
+function alertRow(s){
+  const w=Math.max(3,Math.min(100,s.pct*100));
+  return '<div class="arow l'+s.level+'"><span class="ib">'+ic(s.it.ic)+'</span>'+
+   '<div style="min-width:0"><h3>'+esc(s.it.n)+'</h3><div class="sub">'+esc(lastTxt(s))+'</div></div>'+
+   '<div class="act"><span class="pill">'+LV[s.level]+'</span><button class="btn ghost sm" data-act="rec-new" data-items="'+s.it.id+'">Registrar</button></div>'+
+   '<div class="ms">'+metrics(s)+'</div>'+
+   '<div class="pb"><div class="bar" role="progressbar" aria-valuenow="'+Math.round(Math.min(100,s.pct*100))+'" aria-valuemin="0" aria-valuemax="100" aria-label="Desgaste do intervalo"><i style="width:'+w+'%"></i></div></div></div>';
+}
+function spark(v){
+  const lim=addDays(TODAY,-365),rs=readings(v).filter(r=>parse(r.date)>=lim);
+  if(rs.length<2)return '';
+  const W=300,H=56,pd=6,t0=parse(rs[0].date).getTime(),t1=parse(rs[rs.length-1].date).getTime()||t0+1;
+  const kmin=rs[0].km,kmax=rs[rs.length-1].km||kmin+1;
+  const pts=rs.map(r=>[pd+(parse(r.date).getTime()-t0)/Math.max(1,t1-t0)*(W-2*pd),H-pd-(r.km-kmin)/Math.max(1,kmax-kmin)*(H-2*pd)]);
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
+  const last=pts[pts.length-1];
+  return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" role="img" aria-label="Evolução do odômetro nos últimos 12 meses"><path class="area" d="'+d+'L'+last[0]+' '+H+'L'+pts[0][0]+' '+H+'z"/><path d="'+d+'"/></svg>';
+}
+
+/* ================= Views ================= */
+function viewPainel(){
+  const v=V(),all=statuses(v),cur=curKm(v),kdi=kmDayInfo(v),docs=docStatuses(v);
+  const oil=all.find(s=>s.it.id==='oil')||all[0];
+  const lr=lastReading(v);
+  const cnt=[0,0,0,0];all.forEach(s=>cnt[s.level]++);
+  const list=UI.af==='todos'?all:UI.af==='ok'?all.filter(s=>s.level===0):all.filter(s=>s.level>=1);
+  const up=all.filter(s=>s.est).sort((a,b)=>a.estDays-b.estDays).slice(0,7);
+  const recent=v.records.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);
+
+  let hero;
+  if(!oil){hero='<section class="card hero a-hero"><div class="empty"><b>Nenhum item acompanhado</b>Ative itens no plano de manutenção para ver os alertas aqui.</div></section>'}
+  else{
+    const big=oil.level===3?'Vencida':oil.dueKm!=null?fmt(oil.remKm)+'<small>km</small>':daysTxt(oil.remDays);
+    const forecast=oil.est?(oil.estDays===0?'Agora':fshort(oil.est)+' · '+(oil.estDays>0?'em '+daysTxt(oil.estDays):'')):'—';
+    const why=oil.driver==='tempo'?'pelo prazo de '+ivMo(oil.it,oil.p)+' meses':'no seu ritmo de '+Math.round(oil.kd)+' km/dia';
+    const p=oil.level===3?0.1:0.2+Math.max(0,Math.min(1,1-oil.pct))*0.6;
+    hero='<section class="card hero a-hero l'+oil.level+'">'+
+      '<div class="hero-row"><div><div class="eyebrow">'+(oil.it.id==='oil'?'Próxima troca de óleo':'Próximo item: '+esc(oil.it.n))+'</div>'+
+      '<div class="big num" style="margin-top:6px">'+big+'</div>'+
+      '<p class="muted" style="margin-top:6px">'+(oil.level===3?'Prazo ultrapassado. Troque o quanto antes.':'até a troca · previsão em '+esc(forecast))+'</p></div>'+
+      '<span class="pill">'+LV[oil.level]+'</span></div>'+
+      dipstick(p)+
+      '<div class="hero-meta">'+
+        '<div><span>Última troca</span><b>'+(oil.last?fdate(parse(oil.last.date))+' · '+fmt(oil.last.km)+' km':'Sem registro')+'</b></div>'+
+        '<div><span>Intervalo</span><b>'+(ivKm(oil.it,oil.p)?fmt(ivKm(oil.it,oil.p))+' km':'')+(ivKm(oil.it,oil.p)&&ivMo(oil.it,oil.p)?' ou ':'')+(ivMo(oil.it,oil.p)?ivMo(oil.it,oil.p)+' meses':'')+'</b></div>'+
+        '<div><span>Previsão '+esc(why)+'</span><b>'+(oil.est?fdate(oil.est):'—')+'</b></div>'+
+        '<div><span>Óleo recomendado</span><b>'+esc(v.oilSpec||'—')+' · '+esc(v.oilCap||'')+'</b></div>'+
+      '</div>'+
+      '<div class="hero-cta"><button class="btn" data-act="rec-new" data-items="'+(oil.it.id==='oil'?'oil,oilf':oil.it.id)+'">'+ic('check')+'Registrar troca</button><button class="btn ghost" data-act="odo">'+ic('gauge')+'Atualizar km</button></div></section>';
+  }
+
+  const odo='<section class="card a-odo"><div class="card-h"><h2>Odômetro</h2><button class="btn ghost sm" data-act="odo">Atualizar</button></div>'+odoHtml(cur)+
+    '<div class="odo-meta"><div><span class="muted">Ritmo médio</span><b class="num">'+Math.round(kdi.v)+' km/dia</b><small class="muted">'+kdi.src+'</small></div>'+
+    '<div><span class="muted">Média mensal</span><b class="num">'+fmt(kdi.v*30)+' km</b></div>'+
+    '<div><span class="muted">Última leitura</span><b>'+(lr?fdate(parse(lr.date)):'—')+'</b></div></div>'+spark(v)+'</section>';
+
+  const seg=cnt.map((n,i)=>n?'<i class="l'+i+'" style="flex:'+n+'" title="'+LV[i]+': '+n+'"></i>':'').join('');
+  const alerts='<section class="card a-alerts" id="alertas"><div class="card-h"><h2>Alertas de manutenção</h2><div class="chips" role="group" aria-label="Filtro">'+
+    [['pend','Pendentes',cnt[1]+cnt[2]+cnt[3]],['ok','Em dia',cnt[0]],['todos','Todos',all.length]].map(c=>'<button class="chip" data-act="af" data-v="'+c[0]+'" aria-pressed="'+(UI.af===c[0])+'">'+c[1]+'<b>'+c[2]+'</b></button>').join('')+'</div></div>'+
+    (all.length?'<div class="sumbar" aria-hidden="true">'+seg+'</div><div class="legend">'+[3,2,1,0].map(i=>'<span class="l'+i+'">'+LV[i]+' <b>'+cnt[i]+'</b></span>').join('')+'</div>':'')+
+    (list.length?list.map(alertRow).join(''):'<div class="empty"><b>'+(all.length?'Tudo em dia':'Nada para acompanhar')+'</b>'+(all.length?'Nenhum item perto do vencimento neste momento.':'Ative itens no plano de manutenção.')+'</div>')+'</section>';
+
+  const next='<section class="card a-next"><div class="card-h"><h2>Próximas revisões</h2></div>'+
+    (up.length?'<ul class="tl">'+up.map(s=>{const d=s.est;return '<li class="l'+s.level+'"><div class="d"><b>'+(s.estDays===0?'Já':d.getDate())+'</b><span>'+(s.estDays===0?'agora':MES[d.getMonth()])+'</span></div><div style="min-width:0"><h3>'+esc(s.it.n)+'</h3><small>'+(s.driver==='tempo'?'Por prazo · '+fdate(d):'Por km · ≈ '+fmt(s.dueKm)+' km')+'</small></div><div class="r">'+(s.estDays===0?'vencido':'em '+daysTxt(s.estDays))+'</div></li>'}).join('')+'</ul>':'<div class="empty">Sem previsões.</div>')+'</section>';
+
+  const docsH='<section class="card a-docs"><div class="card-h"><h2>Documentos</h2><a class="btn ghost sm" href="#carro">Editar datas</a></div>'+
+    (docs.length?'<ul class="tl">'+docs.map(d=>'<li class="l'+d.level+'"><div class="d"><b>'+d.dt.getDate()+'</b><span>'+MES[d.dt.getMonth()]+'</span></div><div><h3>'+esc(d.n)+'</h3><small>Vence em '+fdate(d.dt)+'</small></div><div class="r">'+(d.days<0?'venceu há '+daysTxt(d.days):d.days===0?'hoje':'em '+daysTxt(d.days))+'</div></li>').join('')+'</ul>':'<div class="empty">Cadastre os vencimentos na ficha do carro.</div>')+'</section>';
+
+  const rec='<section class="card a-recent"><div class="card-h"><h2>Últimas manutenções</h2><a class="btn ghost sm" href="#manutencoes" data-act="goto-hist">Ver histórico</a></div>'+
+    (recent.length?recent.map(r=>histCard(v,r,true)).join(''):'<div class="empty"><b>Nenhuma manutenção registrada</b>Use o botão Registrar para começar.</div>')+'</section>';
+
+  const proto=UI.proto?'<div class="proto"><span>Protótipo com dados de exemplo. Tudo que você altera fica salvo neste navegador.</span><button data-act="reset-ask">Restaurar exemplo</button></div>':'';
+  return proto+'<div class="grid-p">'+hero+odo+alerts+next+docsH+rec+'</div>';
+}
+
+function chipsFor(r){
+  const names=r.items.map(id=>ITEM[id]?'<span class="rchip">'+ic(ITEM[id].ic)+esc(ITEM[id].n)+'</span>':'').join('');
+  return names+(r.other?'<span class="rchip">'+ic('wrench')+esc(r.other)+'</span>':'');
+}
+function histCard(v,r,compact){
+  const d=parse(r.date);
+  const sorted=v.records.slice().sort((a,b)=>a.date.localeCompare(b.date)||a.km-b.km);
+  const idx=sorted.findIndex(x=>x.id===r.id),prev=idx>0?sorted[idx-1]:null;
+  const delta=prev&&r.km>=prev.km?'+'+fmt(r.km-prev.km)+' km desde a anterior':'';
+  const askDel=UI.del===r.id;
+  return '<article class="rec"><div class="rec-d"><b>'+d.getDate()+'</b><span>'+MES[d.getMonth()]+'</span></div>'+
+   '<div class="rec-m"><div class="chips">'+chipsFor(r)+'</div>'+
+   '<p class="meta"><span><b class="num">'+fmt(r.km)+' km</b></span>'+(r.cost?'<span class="num">'+brl.format(r.cost)+'</span>':'')+(r.shop?'<span>'+esc(r.shop)+'</span>':'')+'<span class="tag">'+esc(r.cat||'Outros')+'</span>'+(delta&&!compact?'<span>'+delta+'</span>':'')+'</p>'+
+   (r.prod&&!compact?'<p class="note"><span class="muted">Produtos:</span> '+esc(r.prod)+'</p>':'')+
+   (r.notes&&!compact?'<p class="note muted">'+esc(r.notes)+'</p>':'')+'</div>'+
+   (compact?'':'<div class="rec-a">'+(askDel?'<button class="btn danger sm" data-act="rec-del-yes" data-id="'+r.id+'">Excluir</button><button class="btn ghost sm" data-act="rec-del-no">Cancelar</button>':
+     '<button class="icon-btn flat" data-act="rec-edit" data-id="'+r.id+'" aria-label="Editar registro">'+ic('edit')+'</button><button class="icon-btn flat" data-act="rec-del" data-id="'+r.id+'" aria-label="Excluir registro">'+ic('trash')+'</button>')+'</div>')+
+   '</article>';
+}
+
+function planRow(v,it){
+  const p=v.plan[it.id]||{on:false,km:it.km,mo:it.mo};
+  const s=p.on?status(v,it):null;
+  const lv=s?s.level:'x';
+  let note='';
+  if(p.on&&s){
+    note='<div class="prow-n"><span>'+esc(lastTxt(s))+'</span><span>Próxima: <b>'+(s.dueKm!=null?fmt(s.dueKm)+' km':'')+(s.dueKm!=null&&s.dueDate?' ou ':'')+(s.dueDate?fdate(s.dueDate):'')+'</b></span></div>';
+  }
+  return '<div class="prow l'+lv+(p.on?'':' off')+'"><div class="prow-h"><span class="ib">'+ic(it.ic)+'</span><div class="g"><b>'+esc(it.n)+'</b><small>'+(s?'<span class="pill l'+s.level+'">'+LV[s.level]+'</span>':'Não acompanhado')+'</small></div>'+
+   '<label class="sw" aria-label="Acompanhar '+esc(it.n)+'"><input type="checkbox" data-act="plan-on" data-id="'+it.id+'"'+(p.on?' checked':'')+'><span></span></label></div>'+note+
+   '<div class="prow-i"><label>A cada <input type="number" min="0" step="500" inputmode="numeric" data-act="plan-km" data-id="'+it.id+'" value="'+(p.km||'')+'" aria-label="Intervalo em km de '+esc(it.n)+'" placeholder="—"> km</label>'+
+   '<label>ou <input class="mo" type="number" min="0" step="1" inputmode="numeric" data-act="plan-mo" data-id="'+it.id+'" value="'+(p.mo||'')+'" aria-label="Intervalo em meses de '+esc(it.n)+'" placeholder="—"> meses</label>'+
+   '<button class="btn ghost sm" data-act="plan-reset" data-id="'+it.id+'">Padrão</button></div></div>';
+}
+function planView(v){
+  const on=ITEMS.filter(i=>v.plan[i.id]&&v.plan[i.id].on).length;
+  let h='<p class="muted" style="margin-top:14px">'+on+' de '+ITEMS.length+' itens acompanhados. Os intervalos abaixo são valores comuns; ajuste conforme o manual do seu carro.'+(S.settings.severe?' <b>Uso severo ligado:</b> óleo e filtros avisam com 30% menos intervalo.':'')+'</p>';
+  GROUPS.forEach((g,gi)=>{
+    h+='<h2 class="group-h">'+esc(g)+'</h2><div class="plist">'+ITEMS.filter(i=>i.g===gi).map(i=>planRow(v,i)).join('')+'</div>';
+  });
+  return h;
+}
+function histFiltered(v){
+  const q=UI.q.trim().toLowerCase();
+  return v.records.filter(r=>{
+    if(UI.fItem&&!r.items.includes(UI.fItem))return false;
+    if(UI.fYear&&r.date.slice(0,4)!==UI.fYear)return false;
+    if(q){const hay=[r.shop,r.prod,r.notes,r.other,r.cat].concat(r.items.map(i=>ITEM[i]?ITEM[i].n:'')).join(' ').toLowerCase();if(!hay.includes(q))return false}
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date)||b.km-a.km);
+}
+function histList(v){
+  const rs=histFiltered(v);
+  if(!rs.length)return '<div class="empty card"><b>Nenhum registro encontrado</b>Ajuste os filtros ou registre uma manutenção.</div>';
+  let y='',h='';
+  rs.forEach(r=>{const yy=r.date.slice(0,4);if(yy!==y){y=yy;h+='<h3 class="yh">'+yy+'</h3>'}h+=histCard(v,r,false)});
+  return h;
+}
+function histView(v){
+  const years=Array.from(new Set(v.records.map(r=>r.date.slice(0,4)))).sort().reverse();
+  const used=ITEMS.filter(i=>v.records.some(r=>r.items.includes(i.id)));
+  return '<div class="filters"><input type="search" id="q" placeholder="Buscar por oficina, produto, observação" value="'+esc(UI.q)+'" aria-label="Buscar no histórico">'+
+   '<select id="fItem" aria-label="Filtrar por serviço"><option value="">Todos os serviços</option>'+used.map(i=>'<option value="'+i.id+'"'+(UI.fItem===i.id?' selected':'')+'>'+esc(i.n)+'</option>').join('')+'</select>'+
+   '<select id="fYear" aria-label="Filtrar por ano"><option value="">Todos os anos</option>'+years.map(y=>'<option'+(UI.fYear===y?' selected':'')+'>'+y+'</option>').join('')+'</select></div>'+
+   '<div id="histList">'+histList(v)+'</div>';
+}
+function viewManut(){
+  const v=V();
+  return '<div style="margin-top:6px"><div class="seg" role="tablist"><button role="tab" aria-selected="'+(UI.seg==='plano')+'" data-act="seg" data-v="plano">Plano de manutenção</button><button role="tab" aria-selected="'+(UI.seg==='historico')+'" data-act="seg" data-v="historico">Histórico ('+v.records.length+')</button></div></div>'+
+   (UI.seg==='plano'?planView(v):histView(v));
+}
+
+function viewCustos(){
+  const v=V(),cur=curKm(v);
+  const start=new Date(TODAY.getFullYear(),TODAY.getMonth(),1,12);
+  const months=[];for(let i=11;i>=0;i--){const d=addMonths(start,-i);months.push({k:d.getFullYear()+'-'+pad(d.getMonth()+1),d:d,t:0})}
+  v.records.forEach(r=>{const m=months.find(x=>x.k===r.date.slice(0,7));if(m)m.t+=r.cost||0});
+  const total=v.records.reduce((a,r)=>a+(r.cost||0),0);
+  const lim=addMonths(TODAY,-12),t12=v.records.filter(r=>parse(r.date)>=lim).reduce((a,r)=>a+(r.cost||0),0);
+  const withCost=v.records.filter(r=>r.cost>0);
+  const avg=withCost.length?total/withCost.length:0;
+  const kmDriven=Math.max(1,cur-(v.initialKm||0));
+  const mx=Math.max(1,...months.map(m=>m.t));
+  const byCat={};v.records.forEach(r=>{const c=r.cat||'Outros';byCat[c]=(byCat[c]||0)+(r.cost||0)});
+  const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const top=v.records.slice().sort((a,b)=>(b.cost||0)-(a.cost||0)).slice(0,5);
+  return '<div class="kpis" style="margin-top:6px">'+
+   '<div class="kpi"><span class="eyebrow">Últimos 12 meses</span><b>'+brl.format(t12)+'</b><small>'+v.records.filter(r=>parse(r.date)>=lim).length+' registros</small></div>'+
+   '<div class="kpi"><span class="eyebrow">Total acumulado</span><b>'+brl.format(total)+'</b><small>'+v.records.length+' registros</small></div>'+
+   '<div class="kpi"><span class="eyebrow">Custo por km</span><b>'+brl.format(total/kmDriven)+'</b><small>em '+fmt(kmDriven)+' km rodados</small></div>'+
+   '<div class="kpi"><span class="eyebrow">Média por visita</span><b>'+brl.format(avg)+'</b><small>só registros com valor</small></div></div>'+
+   '<div class="cols2"><section class="card"><div class="card-h"><h2>Gastos por mês</h2><span class="muted">últimos 12 meses</span></div>'+
+   '<div class="bars" role="img" aria-label="Gráfico de gastos mensais">'+months.map(m=>'<div class="c'+(m.t===0?' z':'')+(m.t===mx&&m.t>0?' mx':'')+'">'+(m.t>0?'<span class="v">'+kfmt(m.t)+'</span>':'')+'<div class="b" style="height:'+(m.t>0?Math.max(3,m.t/mx*86):1)+'%"></div></div>').join('')+'</div>'+
+   '<div class="mlabels">'+months.map(m=>'<span>'+MES[m.d.getMonth()]+'</span>').join('')+'</div></section>'+
+   '<section class="card"><div class="card-h"><h2>Por categoria</h2></div>'+
+   (cats.length?cats.map(c=>'<div class="hb"><span>'+esc(c[0])+'</span><div class="bar"><i style="width:'+(total?c[1]/total*100:0)+'%"></i></div><b>'+brl.format(c[1])+'</b></div>').join(''):'<div class="empty">Sem dados.</div>')+'</section></div>'+
+   '<section class="card" style="margin-top:16px"><div class="card-h"><h2>Maiores gastos</h2></div>'+
+   (top.length?'<ul class="toplist">'+top.map(r=>'<li><span>'+(r.items.length?esc(r.items.map(i=>ITEM[i]?ITEM[i].n:'').slice(0,3).join(', '))+(r.items.length>3?' e mais '+(r.items.length-3):''):esc(r.other||'Serviço'))+'<small>'+fdate(parse(r.date))+' · '+fmt(r.km)+' km'+(r.shop?' · '+esc(r.shop):'')+'</small></span><b>'+brl.format(r.cost||0)+'</b></li>').join('')+'</ul>':'<div class="empty">Sem registros.</div>')+'</section>';
+}
+
+const CAR_SVG='<svg viewBox="0 0 320 104" aria-hidden="true"><path d="M12 74 L12 62 Q12 56 20 54 L62 48 L92 26 Q98 20 108 20 L196 20 Q206 20 212 26 L240 48 L292 54 Q308 56 308 64 L308 74 Q308 80 302 80 L270 80 A28 28 0 0 0 214 80 L106 80 A28 28 0 0 0 50 80 L18 80 Q12 80 12 74 Z" fill="currentColor" opacity=".22" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M72 48 L98 29 Q101 26 106 26 L146 26 L146 48 Z M154 26 L196 26 Q201 26 205 30 L228 48 L154 48 Z" fill="currentColor" opacity=".35"/><circle cx="78" cy="80" r="21" fill="var(--surface2)" stroke="currentColor" stroke-width="3"/><circle cx="78" cy="80" r="8" fill="currentColor" opacity=".6"/><circle cx="242" cy="80" r="21" fill="var(--surface2)" stroke="currentColor" stroke-width="3"/><circle cx="242" cy="80" r="8" fill="currentColor" opacity=".6"/></svg>';
+const FIELDS=[
+ ['Identificação',[['nick','Apelido'],['make','Marca'],['model','Modelo'],['version','Versão'],['yearMfg','Ano de fabricação','number'],['yearModel','Ano do modelo','number'],['color','Cor'],['plate','Placa']]],
+ ['Motor e transmissão',[['fuel','Combustível','select',['Flex','Gasolina','Etanol','Diesel','Híbrido','Elétrico','GNV']],['engine','Motor'],['power','Potência'],['gearbox','Câmbio','select',['Manual','Automático','Automatizado','CVT','Elétrico']],['vin','Chassi (opcional)']]],
+ ['Especificações',[['oilCap','Capacidade de óleo (com filtro)'],['oilSpec','Óleo recomendado'],['oilFilterRef','Filtro de óleo (código)'],['tire','Pneus (medida)'],['pressF','Pressão dianteira'],['pressR','Pressão traseira'],['battery','Bateria'],['tank','Tanque']]],
+ ['Compra e odômetro',[['purchase','Data de compra','date'],['initialKm','Km na compra','number']]],
+ ['Vencimentos',[['d_licensing','Licenciamento','date'],['d_ipva','IPVA','date'],['d_insurance','Seguro','date']]]
+];
+function fieldVal(v,k){return k.startsWith('d_')?((v.docs||{})[k.slice(2)]||''):(v[k]==null?'':v[k])}
+function viewCarro(){
+  const v=V(),cur=curKm(v);
+  const head='<section class="card car-head" style="margin-top:6px"><div class="car-art">'+CAR_SVG+'</div><div><div class="eyebrow">'+esc(v.make)+' · '+esc(v.yearMfg)+'/'+esc(v.yearModel)+'</div>'+
+   '<h2 class="disp" style="font-size:34px;font-weight:700;line-height:1.05;margin:4px 0 10px">'+esc(v.model)+' <span class="muted" style="font-weight:500">'+esc(v.version)+'</span></h2>'+
+   '<span class="plate" aria-label="Placa '+esc(v.plate)+'"><i>BRASIL</i><b>'+esc(v.plate||'—')+'</b></span>'+
+   '<div class="facts"><div><span>Km atual</span><b class="num">'+fmt(cur)+' km</b></div><div><span>Motor</span><b>'+esc(v.engine||'—')+'</b></div><div><span>Óleo</span><b>'+esc(v.oilSpec||'—')+'</b></div><div><span>Capacidade</span><b>'+esc(v.oilCap||'—')+'</b></div><div><span>Pneus</span><b>'+esc(v.tire||'—')+'</b></div></div></div></section>';
+  const form='<form data-form="veh" class="card" style="margin-top:16px" autocomplete="off"><div class="card-h"><h2>Ficha do veículo</h2><span class="muted" style="font-size:13px">Confira os valores no manual do proprietário</span></div>'+
+   FIELDS.map(g=>'<div class="fgrp" style="margin-top:'+(g===FIELDS[0]?0:18)+'px"><h3>'+g[0]+'</h3><div class="fgrid">'+g[1].map(f=>{
+     const val=fieldVal(v,f[0]);
+     if(f[2]==='select'){const opts=f[3].slice();if(val&&!opts.includes(val))opts.push(val);return '<label class="f">'+f[1]+'<select id="vf-'+f[0]+'" name="'+f[0]+'">'+opts.map(o=>'<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select></label>'}
+     return '<label class="f">'+f[1]+'<input id="vf-'+f[0]+'" name="'+f[0]+'" type="'+(f[2]||'text')+'" value="'+esc(val)+'"'+(f[2]==='number'?' min="0" inputmode="numeric"':'')+'></label>';
+   }).join('')+'</div></div>').join('')+
+   '<div class="actions"><button class="btn" type="submit">'+ic('check')+'Salvar ficha</button><button class="btn ghost" type="button" data-act="odo">'+ic('gauge')+'Atualizar km</button></div></form>';
+  const vl='<section class="card" style="margin-top:16px"><div class="card-h"><h2>Seus veículos</h2><button class="btn sm" data-act="veh-add">'+ic('plus')+'Adicionar</button></div><div class="vlist">'+
+   S.vehicles.map(x=>'<div class="vitem" aria-current="'+(x.id===v.id)+'"><div><b>'+esc(x.nick||x.model)+'</b><small>'+esc(x.make)+' '+esc(x.model)+' · '+esc(x.plate)+' · '+fmt(curKm(x))+' km</small></div><div style="display:flex;gap:6px;flex-wrap:wrap">'+
+     (x.id===v.id?'<span class="pill l0">Ativo</span>':'<button class="btn ghost sm" data-act="veh-use" data-id="'+x.id+'">Usar</button>')+
+     (S.vehicles.length>1?(UI.delVeh===x.id?'<button class="btn danger sm" data-act="veh-del-yes" data-id="'+x.id+'">Confirmar exclusão</button><button class="btn ghost sm" data-act="veh-del-no">Cancelar</button>':'<button class="icon-btn flat" data-act="veh-del" data-id="'+x.id+'" aria-label="Excluir veículo">'+ic('trash')+'</button>'):'')+
+   '</div></div>').join('')+'</div></section>';
+  return head+form+vl;
+}
+
+function viewAjustes(){
+  const st=S.settings,v=V(),kdi=kmDayInfo(v),top=statuses(v)[0];
+  const nTxt=top?(top.it.n+': '+(top.level===3?'prazo vencido. Agende o quanto antes.':top.dueKm!=null&&top.remKm<=st.alertKm?'faltam '+fmt(top.remKm)+' km ('+esc(v.nick||v.model)+').':top.dueDate?'vence em '+fdate(top.dueDate)+'.':'em dia.')):'Tudo em dia.';
+  const num=(k,lab,sub,step)=>'<div class="srow"><div class="t"><b>'+lab+'</b><small>'+sub+'</small></div><input type="number" min="0" step="'+step+'" inputmode="numeric" data-set="'+k+'" value="'+st[k]+'" aria-label="'+lab+'"></div>';
+  const sw=(k,lab,sub)=>'<div class="srow"><div class="t"><b>'+lab+'</b><small>'+sub+'</small></div><label class="sw"><input type="checkbox" data-set="'+k+'"'+(st[k]?' checked':'')+' aria-label="'+lab+'"><span></span></label></div>';
+  return '<div class="set-grid" style="margin-top:6px"><div class="stack-grid">'+
+   '<section class="card"><div class="card-h"><h2>Quando avisar</h2></div>'+
+    num('alertKm','Atenção a partir de (km)','Quantos km antes do vencimento o item vira Atenção.',100)+
+    num('alertDays','Atenção a partir de (dias)','Quantos dias antes do prazo o item vira Atenção.',1)+
+    num('urgentKm','Urgente a partir de (km)','Faltando poucos km, o alerta fica laranja.',50)+
+    num('urgentDays','Urgente a partir de (dias)','Faltando poucos dias, o alerta fica laranja.',1)+
+    sw('severe','Uso severo','Trânsito pesado, poeira, trechos curtos. Óleo e filtros avisam com 30% menos intervalo.')+'</section>'+
+   '<section class="card"><div class="card-h"><h2>Ritmo de uso</h2></div>'+
+    '<div class="srow"><div class="t"><b>Como estimar km por dia</b><small>Hoje: '+Math.round(kdi.v)+' km/dia ('+kdi.src+'). Usado para prever a data de cada troca.</small></div><select data-set="kmDayMode" aria-label="Modo do ritmo"><option value="auto"'+(st.kmDayMode==='auto'?' selected':'')+'>Automático</option><option value="manual"'+(st.kmDayMode==='manual'?' selected':'')+'>Manual</option></select></div>'+
+    num('kmDayManual','Km por dia (manual)','Usado no modo manual ou quando há poucas leituras.',1)+'</section></div>'+
+   '<div class="stack-grid"><section class="card"><div class="card-h"><h2>Notificações</h2></div>'+
+    sw('push','Notificação no celular','Aviso quando um item entrar em Atenção, Urgente ou Vencido.')+
+    sw('email','Resumo por e-mail','Lista dos itens pendentes do veículo ativo.')+
+    sw('weekly','Resumo semanal','Toda segunda-feira, mesmo sem alertas novos.')+
+    '<div class="srow"><div class="t"><b>Horário do aviso</b><small>Notificações simuladas neste protótipo.</small></div><input type="time" data-set="hour" value="'+esc(st.hour)+'" aria-label="Horário do aviso"></div>'+
+    '<div style="margin-top:12px" class="notif"><span class="app">'+ic('oilcan')+'</span><div><b>Km em Dia <small>· agora</small></b><p>'+nTxt+'</p></div></div>'+
+    '<div class="actions"><button class="btn ghost" data-act="push">'+ic('bell')+'Testar notificação</button></div></section>'+
+   '<section class="card"><div class="card-h"><h2>Dados</h2></div><p class="muted">Seus registros ficam neste navegador. Exporte uma cópia para não perder nada.</p>'+
+    '<div class="actions"><button class="btn ghost" data-act="export">'+ic('doc')+'Exportar JSON</button><button class="btn ghost" data-act="import">Importar</button><button class="btn ghost" data-act="reset-ask">Restaurar exemplo</button></div></section>'+
+    '<section class="card"><div class="card-h"><h2>Sobre</h2></div><p><b>Km em Dia</b> · versão 1.0</p><p class="muted" style="margin-top:4px">© 2026 Adriel Fernando. Todos os direitos reservados.</p></section></div></div>';
+}
+
+/* ================= Render ================= */
+const ROUTES={painel:{t:'Painel',i:'gauge',f:viewPainel},manutencoes:{t:'Manutenções',i:'wrench',f:viewManut},custos:{t:'Custos',i:'chart',f:viewCustos},carro:{t:'Meu carro',i:'car',f:viewCarro},ajustes:{t:'Ajustes',i:'sliders',f:viewAjustes}};
+let route='painel';
+function chrome(){
+  const v=V(),r=ROUTES[route];
+  $('#h-title').textContent=r.t;
+  $('#vsel').innerHTML=S.vehicles.map(x=>'<option value="'+x.id+'"'+(x.id===v.id?' selected':'')+'>'+esc(x.nick||x.model)+' · '+esc(x.plate)+'</option>').join('');
+  const n=alertCount(v),b=$('#bell-n');b.hidden=!n;b.textContent=n;
+  const nav=Object.keys(ROUTES).map(k=>'<a href="#'+k+'"'+(k===route?' aria-current="page"':'')+'>'+ic(ROUTES[k].i)+'<span>'+ROUTES[k].t+'</span></a>').join('');
+  $('#nav-side').innerHTML=nav;$('#nav-tab').innerHTML=nav;
+}
+function render(){chrome();$('#view').innerHTML=ROUTES[route].f()}
+function onRoute(scroll){
+  const h=(location.hash||'#painel').slice(1);
+  route=ROUTES[h]?h:'painel';
+  render();if(scroll)window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',()=>onRoute(true));
+
+/* ================= Modal, toast ================= */
+function openModal(html,onMount){
+  const r=$('#modal-root');
+  r.innerHTML='<div class="ov" data-act="ov"><div class="sheet" role="dialog" aria-modal="true">'+html+'</div></div>';
+  document.body.classList.add('lock');
+  if(onMount)onMount(r);
+  const f=r.querySelector('input:not([type=checkbox]),select,textarea');if(f)f.focus({preventScroll:true});
+}
+function closeModal(){$('#modal-root').innerHTML='';document.body.classList.remove('lock')}
+let tt;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800)}
+function pushPreview(){
+  const v=V(),top=statuses(v)[0];
+  const txt=top?(top.it.n+': '+(top.level===3?'prazo vencido.':top.dueKm!=null?'faltam '+fmt(Math.max(0,top.remKm))+' km.':'vence em '+fdate(top.dueDate)+'.')):'Tudo em dia.';
+  const p=$('#push');p.innerHTML='<div class="notif"><span class="app">'+ic('oilcan')+'</span><div><b>Km em Dia <small>· agora</small></b><p>'+esc(txt)+'</p></div></div>';
+  p.classList.add('show');setTimeout(()=>p.classList.remove('show'),5000);
+}
+const sheetHead=(t)=>'<div class="sheet-h"><h2>'+t+'</h2><button class="icon-btn flat" data-act="close" aria-label="Fechar">'+ic('x')+'</button></div>';
+
+/* ---- Registrar manutenção ---- */
+function recordModal(rec,pre){
+  const v=V(),cur=curKm(v),sel=rec?rec.items:(pre||[]);
+  const r=rec||{date:iso(TODAY),km:cur,items:sel,other:'',cost:'',cat:'Preventiva',shop:'',prod:'',notes:''};
+  const groups=GROUPS.map((g,gi)=>'<div class="fgrp" style="margin-top:14px"><h3 style="font-size:17px">'+esc(g)+'</h3><div class="chkgrid">'+ITEMS.filter(i=>i.g===gi).map(i=>'<label class="chk"><input type="checkbox" name="items" value="'+i.id+'"'+(sel.includes(i.id)?' checked':'')+'><span>'+esc(i.n)+(v.plan[i.id]&&v.plan[i.id].on?'':'<small>não acompanhado</small>')+'</span></label>').join('')+'</div></div>').join('');
+  openModal(sheetHead(rec?'Editar manutenção':'Registrar manutenção')+
+   '<form data-form="rec" data-id="'+(rec?rec.id:'')+'" autocomplete="off"><div class="fgrid">'+
+   '<label class="f">Data<input id="r-date" name="date" type="date" required max="'+iso(TODAY)+'" value="'+esc(r.date)+'"></label>'+
+   '<label class="f">Km no momento<input id="r-km" name="km" type="number" required min="0" inputmode="numeric" value="'+esc(r.km)+'"></label></div>'+
+   '<h3 class="disp" style="font-size:20px;margin:18px 0 0;font-weight:600">Serviços realizados</h3>'+groups+
+   '<div class="fgrid" style="margin-top:16px"><label class="f full">Outros serviços<input id="r-other" name="other" type="text" placeholder="Ex.: reparo da trava da porta" value="'+esc(r.other)+'"></label>'+
+   '<label class="f">Custo total (R$)<input id="r-cost" name="cost" type="number" min="0" step="0.01" inputmode="decimal" value="'+esc(r.cost)+'"></label>'+
+   '<label class="f">Categoria<select id="r-cat" name="cat">'+CATS.map(c=>'<option'+(c===r.cat?' selected':'')+'>'+c+'</option>').join('')+'</select></label>'+
+   '<label class="f">Oficina ou local<input id="r-shop" name="shop" type="text" value="'+esc(r.shop)+'"></label>'+
+   '<label class="f">Óleo e peças usadas<input id="r-prod" name="prod" type="text" placeholder="Ex.: 5W-40, 4 L" value="'+esc(r.prod)+'"></label>'+
+   '<label class="f full">Observações<textarea id="r-notes" name="notes">'+esc(r.notes)+'</textarea></label></div>'+
+   '<h3 class="disp" style="font-size:20px;margin:18px 0 8px;font-weight:600">Próximos vencimentos</h3><div class="preview" id="r-prev"></div>'+
+   '<p class="err" id="r-err" role="alert"></p>'+
+   '<div class="actions" style="margin-top:6px"><button class="btn" type="submit">'+ic('check')+'Salvar</button><button class="btn ghost" type="button" data-act="close">Cancelar</button></div></form>',
+   m=>updatePreview($('form[data-form=rec]',m)));
+}
+function updatePreview(f){
+  if(!f)return;
+  const v=V(),fd=new FormData(f),date=fd.get('date'),km=Number(fd.get('km')),ids=fd.getAll('items'),box=$('#r-prev');
+  if(!box)return;
+  if(!date||!(km>=0)||fd.get('km')===''||!ids.length){box.innerHTML='<span class="muted">Marque os serviços feitos para ver quando vencem de novo.</span>';return}
+  box.innerHTML=ids.map(id=>{
+    const it=ITEM[id],p=v.plan[id];
+    if(!it)return '';
+    if(!p||!p.on)return '<div><span>'+esc(it.n)+'</span><span>não acompanhado</span></div>';
+    const k=ivKm(it,p),m=ivMo(it,p),parts=[];
+    if(k)parts.push(fmt(km+k)+' km');
+    if(m)parts.push(fdate(addMonths(parse(date),m)));
+    return '<div><span>'+esc(it.n)+'</span><span class="num">'+(parts.join(' ou ')||'sem intervalo')+'</span></div>';
+  }).join('');
+}
+function saveRecord(f){
+  const fd=new FormData(f),id=f.dataset.id,err=$('#r-err');
+  const date=fd.get('date'),kmS=fd.get('km'),km=Number(kmS),items=fd.getAll('items'),other=String(fd.get('other')||'').trim();
+  if(!date){err.textContent='Informe a data do serviço.';return}
+  if(date>iso(TODAY)){err.textContent='A data não pode ser futura.';return}
+  if(kmS===''||!(km>=0)){err.textContent='Informe o km do odômetro no dia do serviço.';return}
+  if(!items.length&&!other){err.textContent='Marque pelo menos um serviço ou descreva em Outros serviços.';return}
+  const rec={id:id||uid(),date:date,km:km,items:items,other:other,cost:Number(fd.get('cost'))||0,cat:fd.get('cat'),shop:String(fd.get('shop')||'').trim(),prod:String(fd.get('prod')||'').trim(),notes:String(fd.get('notes')||'').trim()};
+  const v=V();
+  if(id){const i=v.records.findIndex(r=>r.id===id);if(i>=0)v.records[i]=rec}else v.records.push(rec);
+  save();closeModal();render();toast(id?'Registro atualizado':'Manutenção registrada. Vencimentos recalculados.');
+}
+
+/* ---- Atualizar km ---- */
+function odoModal(){
+  const v=V(),cur=curKm(v);
+  openModal(sheetHead('Atualizar odômetro')+'<form data-form="odo" autocomplete="off"><p class="muted" style="margin-bottom:12px">Última leitura: <b class="num">'+fmt(cur)+' km</b>. Quanto mais leituras, melhor a previsão das datas.</p><div class="fgrid">'+
+   '<label class="f">Km atual<input id="o-km" name="km" type="number" required min="0" inputmode="numeric" value="'+cur+'"></label>'+
+   '<label class="f">Data da leitura<input id="o-date" name="date" type="date" required max="'+iso(TODAY)+'" value="'+iso(TODAY)+'"></label></div>'+
+   '<p class="err" id="o-err" role="alert"></p><div class="actions" style="margin-top:6px"><button class="btn" type="submit">'+ic('check')+'Salvar leitura</button><button class="btn ghost" type="button" data-act="close">Cancelar</button></div></form>');
+}
+function saveOdo(f){
+  const fd=new FormData(f),km=Number(fd.get('km')),date=fd.get('date'),err=$('#o-err'),v=V();
+  if(!date||date>iso(TODAY)){err.textContent='Informe uma data válida, sem datas futuras.';return}
+  const before=readings(v).filter(r=>r.date<=date).pop(),after=readings(v).filter(r=>r.date>date)[0];
+  if(before&&km<before.km){err.textContent='O valor é menor que a leitura anterior ('+fmt(before.km)+' km em '+fdate(parse(before.date))+').';return}
+  if(after&&km>after.km){err.textContent='O valor é maior que uma leitura posterior ('+fmt(after.km)+' km).';return}
+  v.odo=(v.odo||[]).filter(r=>r.date!==date);v.odo.push({date:date,km:km});
+  save();closeModal();render();toast('Odômetro atualizado para '+fmt(km)+' km');
+}
+
+/* ---- Veículo ---- */
+function vehModal(){
+  openModal(sheetHead('Novo veículo')+'<form data-form="newveh" autocomplete="off"><div class="fgrid">'+
+   '<label class="f">Apelido<input id="n-nick" name="nick" type="text" placeholder="Ex.: Carro da família"></label>'+
+   '<label class="f">Placa<input id="n-plate" name="plate" type="text" maxlength="8"></label>'+
+   '<label class="f">Marca<input id="n-make" name="make" type="text" required></label>'+
+   '<label class="f">Modelo<input id="n-model" name="model" type="text" required></label>'+
+   '<label class="f">Ano do modelo<input id="n-year" name="yearModel" type="number" min="1950" max="2100" inputmode="numeric"></label>'+
+   '<label class="f">Km atual<input id="n-km" name="km" type="number" min="0" required inputmode="numeric"></label>'+
+   '<label class="f full">Data de compra (ou de zero km)<input id="n-purchase" name="purchase" type="date" max="'+iso(TODAY)+'"></label></div>'+
+   '<p class="muted" style="margin-top:10px;font-size:14px">O plano de manutenção começa com os intervalos padrão. Você ajusta tudo depois.</p>'+
+   '<div class="actions"><button class="btn" type="submit">'+ic('plus')+'Adicionar</button><button class="btn ghost" type="button" data-act="close">Cancelar</button></div></form>');
+}
+function saveNewVeh(f){
+  const fd=new FormData(f),g=k=>String(fd.get(k)||'').trim();
+  const km=Number(fd.get('km'))||0,purchase=g('purchase')||iso(TODAY);
+  const v={id:uid(),nick:g('nick')||g('model'),make:g('make'),model:g('model'),version:'',yearMfg:g('yearModel'),yearModel:g('yearModel'),color:'',plate:g('plate').toUpperCase(),fuel:'Flex',engine:'',power:'',gearbox:'Manual',vin:'',oilCap:'',oilSpec:'',oilFilterRef:'',tire:'',pressF:'',pressR:'',battery:'',tank:'',purchase:purchase,initialKm:km,docs:{},plan:mkPlan(['timing']),odo:[{date:iso(TODAY),km:km}],records:[]};
+  S.vehicles.push(v);S.activeId=v.id;save();closeModal();location.hash='#carro';render();toast('Veículo adicionado');
+}
+function saveVeh(f){
+  const v=V(),fd=new FormData(f);
+  FIELDS.forEach(g=>g[1].forEach(fl=>{
+    const k=fl[0];let val=fd.get(k);val=val==null?'':String(val).trim();
+    if(k.startsWith('d_')){v.docs=v.docs||{};if(val)v.docs[k.slice(2)]=val;else delete v.docs[k.slice(2)]}
+    else if(k==='initialKm')v.initialKm=Number(val)||0;
+    else if(k==='plate')v.plate=val.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    else v[k]=val;
+  }));
+  if(!v.purchase)v.purchase=iso(TODAY);
+  save();render();toast('Ficha salva');
+}
+
+/* ---- Dados ---- */
+function exportModal(){
+  openModal(sheetHead('Exportar dados')+'<p class="muted" style="margin-bottom:10px">Copie o texto abaixo e guarde onde quiser. Para restaurar, use Importar.</p><textarea id="ex-ta" class="ta-export" readonly>'+esc(JSON.stringify(S,null,1))+'</textarea><div class="actions"><button class="btn" data-act="copy-json">'+ic('doc')+'Copiar</button><button class="btn ghost" data-act="close">Fechar</button></div>');
+}
+function importModal(){
+  openModal(sheetHead('Importar dados')+'<p class="muted" style="margin-bottom:10px">Cole o JSON exportado antes. Isso substitui os dados atuais.</p><textarea id="im-ta" class="ta-export" placeholder="{ &quot;vehicles&quot;: [ ... ] }"></textarea><p class="err" id="im-err" role="alert"></p><div class="actions"><button class="btn" data-act="import-go">Importar</button><button class="btn ghost" data-act="close">Cancelar</button></div>');
+}
+function resetAsk(){
+  openModal(sheetHead('Restaurar exemplo')+'<p>Os dados de exemplo voltam ao estado original. Tudo que você cadastrou neste navegador será apagado.</p><div class="actions"><button class="btn danger" data-act="reset-go">Restaurar</button><button class="btn ghost" data-act="close">Cancelar</button></div>');
+}
+
+/* ================= Eventos ================= */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  if(['INPUT','SELECT','TEXTAREA'].includes(el.tagName))return;
+  const a=el.dataset.act,v=V();
+  switch(a){
+    case 'ov':if(e.target===el)closeModal();break;
+    case 'close':closeModal();break;
+    case 'rec-new':recordModal(null,el.dataset.items?el.dataset.items.split(','):[]);break;
+    case 'rec-edit':{const r=v.records.find(x=>x.id===el.dataset.id);if(r)recordModal(r)}break;
+    case 'rec-del':UI.del=el.dataset.id;render();break;
+    case 'rec-del-no':UI.del=null;render();break;
+    case 'rec-del-yes':v.records=v.records.filter(r=>r.id!==el.dataset.id);UI.del=null;save();render();toast('Registro excluído');break;
+    case 'odo':odoModal();break;
+    case 'seg':UI.seg=el.dataset.v;render();break;
+    case 'goto-hist':UI.seg='historico';break;
+    case 'af':UI.af=el.dataset.v;render();break;
+    case 'plan-reset':{const it=ITEM[el.dataset.id];v.plan[it.id]=Object.assign(v.plan[it.id]||{on:false},{km:it.km,mo:it.mo});save();render();toast('Intervalo padrão restaurado')}break;
+    case 'veh-add':vehModal();break;
+    case 'veh-use':S.activeId=el.dataset.id;save();render();toast('Veículo ativo trocado');break;
+    case 'veh-del':UI.delVeh=el.dataset.id;render();break;
+    case 'veh-del-no':UI.delVeh=null;render();break;
+    case 'veh-del-yes':S.vehicles=S.vehicles.filter(x=>x.id!==el.dataset.id);if(!S.vehicles.some(x=>x.id===S.activeId))S.activeId=S.vehicles[0].id;UI.delVeh=null;save();render();toast('Veículo excluído');break;
+    case 'bell':if(location.hash!=='#painel'&&location.hash!=='')location.hash='#painel';setTimeout(()=>{const t=$('#alertas');if(t)t.scrollIntoView({behavior:'smooth',block:'start'})},60);break;
+    case 'push':pushPreview();break;
+    case 'export':exportModal();break;
+    case 'import':importModal();break;
+    case 'copy-json':{const ta=$('#ex-ta');ta.select();
+      (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(ta.value):Promise.reject()).then(()=>toast('Copiado'),()=>toast('Selecione o texto e copie manualmente'));}break;
+    case 'import-go':{const err=$('#im-err');try{const o=JSON.parse($('#im-ta').value);if(!o||!Array.isArray(o.vehicles)||!o.vehicles.length||!o.settings)throw 0;S=o;if(!S.vehicles.some(x=>x.id===S.activeId))S.activeId=S.vehicles[0].id;save();closeModal();render();toast('Dados importados')}catch(x){err.textContent='Não foi possível ler esse texto. Cole o JSON completo exportado pelo app.'}}break;
+    case 'reset-ask':resetAsk();break;
+    case 'reset-go':S=seed();save();closeModal();UI.del=null;UI.delVeh=null;render();toast('Dados de exemplo restaurados');break;
+  }
+});
+document.addEventListener('submit',e=>{
+  const f=e.target;if(!f.dataset||!f.dataset.form)return;e.preventDefault();
+  ({rec:saveRecord,odo:saveOdo,newveh:saveNewVeh,veh:saveVeh}[f.dataset.form]||function(){})(f);
+});
+document.addEventListener('input',e=>{
+  const t=e.target,f=t.closest&&t.closest('form[data-form=rec]');
+  if(f)updatePreview(f);
+  if(t.id==='q'){UI.q=t.value;const l=$('#histList');if(l)l.innerHTML=histList(V())}
+});
+document.addEventListener('change',e=>{
+  const t=e.target,v=V(),a=t.dataset&&t.dataset.act;
+  if(t.closest&&t.closest('form[data-form=rec]'))updatePreview(t.closest('form'));
+  if(t.id==='fItem'){UI.fItem=t.value;$('#histList').innerHTML=histList(v)}
+  else if(t.id==='fYear'){UI.fYear=t.value;$('#histList').innerHTML=histList(v)}
+  else if(a==='vsel'){S.activeId=t.value;save();render()}
+  else if(a==='plan-on'){const it=ITEM[t.dataset.id];v.plan[it.id]=v.plan[it.id]||{km:it.km,mo:it.mo};v.plan[it.id].on=t.checked;save();render()}
+  else if(a==='plan-km'||a==='plan-mo'){const it=ITEM[t.dataset.id];v.plan[it.id]=v.plan[it.id]||{on:false,km:it.km,mo:it.mo};const n=Math.max(0,Math.round(Number(t.value)||0));v.plan[it.id][a==='plan-km'?'km':'mo']=n||null;save();render()}
+  else if(t.dataset&&t.dataset.set){
+    const k=t.dataset.set,st=S.settings;
+    st[k]=t.type==='checkbox'?t.checked:(t.type==='number'?Math.max(0,Number(t.value)||0):t.value);
+    if(st.urgentKm>st.alertKm)st.alertKm=st.urgentKm;
+    if(st.urgentDays>st.alertDays)st.alertDays=st.urgentDays;
+    if(k==='kmDayManual'&&!(st.kmDayManual>=1))st.kmDayManual=1;
+    save();render();toast('Ajuste salvo');
+  }
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal-root').firstChild)closeModal()});
+
+onRoute(false);
+})();
+</script>
+<script>if("serviceWorker"in navigator){addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){})})}</script>
+</body>
+</html>
