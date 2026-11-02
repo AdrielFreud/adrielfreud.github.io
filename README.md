@@ -1,4 +1,4 @@
-# Km em Dia
+# Meu Carro
 
 Controle de troca de óleo e manutenção por quilometragem, com alertas. Funciona como PWA (instala na tela inicial do iPhone e do Android).
 
