@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  Km em Dia
+  Meu Carro
   © 2026 Adriel Fernando. Todos os direitos reservados.
 -->
 <html lang="pt-BR">
@@ -11,7 +11,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Km em Dia">
+<meta name="apple-mobile-web-app-title" content="Meu Carro">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/favicon.png">
@@ -391,7 +391,7 @@ label.chk small{display:block;color:var(--ink2);font-size:12px}
 
 <div id="app">
   <aside class="side"><div class="side-in">
-    <div class="brand"><span class="brand-mark"><svg class="ic"><use href="#i-oilcan"/></svg></span><b>Km em Dia</b></div>
+    <div class="brand"><span class="brand-mark"><svg class="ic"><use href="#i-oilcan"/></svg></span><b>Meu Carro</b></div>
     <nav id="nav-side" aria-label="Principal"></nav>
     <p class="side-foot">Protótipo com dados de exemplo. O que você cadastra fica salvo só neste navegador.<br><br>© 2026 Adriel Fernando.<br>Todos os direitos reservados.</p>
   </div></aside>
@@ -821,11 +821,11 @@ function viewAjustes(){
     sw('email','Resumo por e-mail','Lista dos itens pendentes do veículo ativo.')+
     sw('weekly','Resumo semanal','Toda segunda-feira, mesmo sem alertas novos.')+
     '<div class="srow"><div class="t"><b>Horário do aviso</b><small>Notificações simuladas neste protótipo.</small></div><input type="time" data-set="hour" value="'+esc(st.hour)+'" aria-label="Horário do aviso"></div>'+
-    '<div style="margin-top:12px" class="notif"><span class="app">'+ic('oilcan')+'</span><div><b>Km em Dia <small>· agora</small></b><p>'+nTxt+'</p></div></div>'+
+    '<div style="margin-top:12px" class="notif"><span class="app">'+ic('oilcan')+'</span><div><b>Meu Carro <small>· agora</small></b><p>'+nTxt+'</p></div></div>'+
     '<div class="actions"><button class="btn ghost" data-act="push">'+ic('bell')+'Testar notificação</button></div></section>'+
    '<section class="card"><div class="card-h"><h2>Dados</h2></div><p class="muted">Seus registros ficam neste navegador. Exporte uma cópia para não perder nada.</p>'+
     '<div class="actions"><button class="btn ghost" data-act="export">'+ic('doc')+'Exportar JSON</button><button class="btn ghost" data-act="import">Importar</button><button class="btn ghost" data-act="reset-ask">Restaurar exemplo</button></div></section>'+
-    '<section class="card"><div class="card-h"><h2>Sobre</h2></div><p><b>Km em Dia</b> · versão 1.0</p><p class="muted" style="margin-top:4px">© 2026 Adriel Fernando. Todos os direitos reservados.</p></section></div></div>';
+    '<section class="card"><div class="card-h"><h2>Sobre</h2></div><p><b>Meu Carro</b> · versão 1.0</p><p class="muted" style="margin-top:4px">© 2026 Adriel Fernando. Todos os direitos reservados.</p></section></div></div>';
 }
 
 /* ================= Render ================= */
@@ -861,7 +861,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
 function pushPreview(){
   const v=V(),top=statuses(v)[0];
   const txt=top?(top.it.n+': '+(top.level===3?'prazo vencido.':top.dueKm!=null?'faltam '+fmt(Math.max(0,top.remKm))+' km.':'vence em '+fdate(top.dueDate)+'.')):'Tudo em dia.';
-  const p=$('#push');p.innerHTML='<div class="notif"><span class="app">'+ic('oilcan')+'</span><div><b>Km em Dia <small>· agora</small></b><p>'+esc(txt)+'</p></div></div>';
+  const p=$('#push');p.innerHTML='<div class="notif"><span class="app">'+ic('oilcan')+'</span><div><b>Meu Carro <small>· agora</small></b><p>'+esc(txt)+'</p></div></div>';
   p.classList.add('show');setTimeout(()=>p.classList.remove('show'),5000);
 }
 const sheetHead=(t)=>'<div class="sheet-h"><h2>'+t+'</h2><button class="icon-btn flat" data-act="close" aria-label="Fechar">'+ic('x')+'</button></div>';
