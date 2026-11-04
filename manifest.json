@@ -1,7 +1,7 @@
 {
   "name": "Km em Dia",
   "short_name": "Km em Dia",
-  "description": "Controle de troca de óleo e manutenção do carro por quilometragem, com alertas.",
+  "description": "Controle de troca de óleo e manutenção do carro por quilometragem, com alertas e sugestão de óleo e câmbio.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
