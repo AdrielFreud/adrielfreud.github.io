@@ -1,5 +1,5 @@
 // Km em Dia - © 2026 Adriel Fernando. Todos os direitos reservados.
-const CACHE = 'km-em-dia-v3';
+const CACHE = 'km-em-dia-v4';
 const CORE = ['./', './index.html', './manifest.json', './dados/oleos.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
