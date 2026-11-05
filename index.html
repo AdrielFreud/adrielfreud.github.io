@@ -7,7 +7,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1E232A">
+<meta name="theme-color" content="#171B21">
 <meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1298,21 +1298,28 @@ async function obOpenNative(){
 }
 /* Simulador ELM327 (modo demonstração) */
 function obOpenSim(){
- const st={t:0,dtc:['P0171','P0420'],pend:['P0301'],cleared:false,ff:true};
+ const st={t:0,h:'7DF',dtc:['P0171','P0420'],pend:['P0301'],cleared:false,ff:true};OBX.simT=()=>st.t;OBX.simReset=()=>{st.t=0};
  const VIN='9BWAA05U5MP012345',CAL='VW5ZZZ0000012345';
  const hex=(arr)=>arr.map(b=>('0'+(b&255).toString(16)).slice(-2)).join('').toUpperCase();
  const asc=s=>Array.from(s).map(c=>c.charCodeAt(0));
  const SIMP=[0x04,0x05,0x06,0x07,0x0B,0x0C,0x0D,0x0E,0x0F,0x10,0x11,0x1F,0x2F,0x31,0x33,0x42,0x43,0x46,0x5C,0xA6];
- function sig(){const t=st.t,drive=0.5+0.5*Math.sin(t/9),sp=Math.max(0,Math.round(drive*70-8+Math.sin(t/3)*3));const rpm=sp<=0?820+Math.sin(t)*25:1200+sp*28+Math.sin(t*2)*60;
-  return {rpm:rpm,speed:sp,load:sp<=0?22+Math.sin(t)*2:30+sp*0.5,coolant:Math.min(92,48+t*0.6),iat:34,ambient:26,oil:Math.min(98,45+t*0.5),stft:Math.sin(t/4)*4+(st.cleared?0:3),ltft:st.cleared?0:11.2,map:sp<=0?36:44+sp*0.5,maf:sp<=0?3.1:5+sp*0.28,thr:sp<=0?14:18+sp*0.35,timing:sp<=0?12:18+drive*10,volt:sp<=0?13.9:14.1,level:58-t*0.02,runtime:Math.round(t*1.0),dist:st.cleared?Math.round(t*0.01):312,baro:93,odo:84231.4+t*0.01}}
+ function sig(){const t=st.t,scn=OBX.scn||'drive',drive=0.5+0.5*Math.sin(t/9),sp=scn==='drive'?Math.max(0,Math.round(drive*70-8+Math.sin(t/3)*3)):0;const rpm=sp<=0?820+Math.sin(t*1.7)*(scn==='drive'?25:7)-(scn==='misfire3'&&Math.floor(t*2.5)%6===0?150:0):1200+sp*28+Math.sin(t*2)*60;
+  return {rpm:rpm,speed:sp,load:sp<=0?22+Math.sin(t)*2:30+sp*0.5,coolant:Math.min((OBX.scn==='thermo'?68:92),48+t*0.6),iat:34,ambient:26,oil:Math.min(98,45+t*0.5),stft:Math.sin(t/4)*4+(st.cleared?0:3),ltft:st.cleared?0:11.2,map:sp<=0?36:44+sp*0.5,maf:sp<=0?3.1:5+sp*0.28,thr:sp<=0?14:18+sp*0.35,timing:sp<=0?12:18+drive*10,volt:sp<=0?13.9:14.1,level:58-t*0.02,runtime:Math.round(t*1.0),dist:st.cleared?Math.round(t*0.01):312,baro:93,odo:84231.4+t*0.01}}
  function enc(pid,s){switch(pid){case 0x04:return [s.load*255/100];case 0x05:return [s.coolant+40];case 0x06:return [s.stft*128/100+128];case 0x07:return [s.ltft*128/100+128];case 0x0B:return [s.map];case 0x0C:{const v=Math.round(s.rpm*4);return [v>>8,v&255]}case 0x0D:return [s.speed];case 0x0E:return [(s.timing+64)*2];case 0x0F:return [s.iat+40];case 0x10:{const v=Math.round(s.maf*100);return [v>>8,v&255]}case 0x11:return [s.thr*255/100];case 0x1F:return [s.runtime>>8,s.runtime&255];case 0x2F:return [s.level*255/100];case 0x31:return [s.dist>>8,s.dist&255];case 0x33:return [s.baro];case 0x42:{const v=Math.round(s.volt*1000);return [v>>8,v&255]}case 0x43:{const v=Math.round(s.load*255/100*1.1);return [v>>8,v&255]}case 0x46:return [s.ambient+40];case 0x5C:return [s.oil+40];case 0xA6:{const v=Math.round(s.odo*10);return [(v>>>24)&255,(v>>>16)&255,(v>>>8)&255,v&255]}}return null}
  function mask(base){let m=0;for(let i=1;i<=32;i++){const pid=base+i;if(SIMP.indexOf(pid)>=0)m|=(1<<(32-i))>>>0;}if(SIMP.some(p=>p>base+32))m|=1;return [(m>>>24)&255,(m>>>16)&255,(m>>>8)&255,m&255]}
  function dtcBytes(list){const out=[];list.forEach(c=>{const t='PCBU'.indexOf(c[0]);const v=(t<<14)|(parseInt(c[1],10)<<12)|parseInt(c.slice(2),16);out.push(v>>8,v&255)});return out}
  function mf(bytes){const lenH=('00'+bytes.length.toString(16)).slice(-3).toUpperCase();const lines=[lenH];let i=0,n=0;const first=bytes.slice(0,6);lines.push('0:'+hex(first));i=6;n=1;while(i<bytes.length){lines.push((n&15).toString(16).toUpperCase()+':'+hex(bytes.slice(i,i+7)));i+=7;n++}return lines.join('\r')}
  return {name:'ELM327 (simulado)',
-  async send(cmd){await obSleep(35);cmd=cmd.replace(/\s+/g,'').toUpperCase();st.t+=0.4;
+  async send(cmd){await obSleep(35);cmd=cmd.replace(/\s+/g,'').toUpperCase();st.t+=(OBX.tst&&OBX.tst.run?2:0.4);
    if(cmd==='ATZ')return 'ELM327 v1.5';if(cmd==='ATI')return 'ELM327 v1.5';if(cmd==='ATDPN')return 'A6';if(cmd==='ATRV')return (13.9+Math.sin(st.t)*0.1).toFixed(1)+'V';
+   if(cmd.startsWith('ATSH')){st.h=cmd.slice(4);return 'OK'}
    if(cmd.startsWith('AT'))return 'OK';
+   if(st.h!=='7DF'&&st.h!=='7E0'){
+    if(st.h==='7E1'){if(cmd==='03')return '43'+hex([1])+hex(dtcBytes(['P0715']));if(cmd==='1902FF')return '7F1912';return 'NO DATA'}
+    if(st.h==='7B0'){if(cmd==='1902FF')return '5902FF'+hex([0x40,0x35,0x11,0x2F]);return 'NO DATA'}
+    if(st.h==='7B2'){if(cmd==='1902FF')return '5902FF'+hex([0x80,0x12,0x11,0x09]);return 'NO DATA'}
+    return 'NO DATA'}
+   if(cmd==='1902FF')return '7F1912';
    const sg=sig();
    if(cmd==='0100'||cmd==='0120'||cmd==='0140'||cmd==='0160'||cmd==='0180'||cmd==='01A0'){const base=parseInt(cmd.slice(2),16);return '41'+cmd.slice(2)+hex(mask(base))}
    if(cmd==='0101')return '4101'+(st.dtc.length?hex([0x80|st.dtc.length]):'00')+hex([0x07,0x65,st.cleared?0x65:0x04]);
@@ -1322,6 +1329,8 @@ function obOpenSim(){
    if(cmd==='0A')return '4A00';
    if(cmd==='04'){st.dtc=[];st.pend=[];st.cleared=true;st.ff=false;return '44'}
    if(cmd.startsWith('02')&&cmd.length===6){if(!st.ff)return 'NO DATA';const pid=parseInt(cmd.slice(2,4),16);if(pid===2)return '420200'+hex(dtcBytes([st.dtc[0]||'P0171']));const ff={rpm:2150,speed:62,load:46,coolant:88,iat:36,stft:-1.5,ltft:11.3,map:52,maf:14.2,thr:28,timing:20,volt:14.0,runtime:600,dist:312,level:50,baro:93,ambient:26,oil:80,odo:84200};const b=enc(pid,ff);return b?'42'+hex([pid])+'00'+hex(b):'NO DATA'}
+   if(cmd==='06A0')return '46A0F0000000';
+   if(/^06A[1-4]$/.test(cmd)){const c=parseInt(cmd.slice(3),16),n=(c===3&&OBX.scn==='misfire3')?Math.floor(st.t*0.35):(c===1?1:0),rec=(tid,v)=>[tid,0x24,v>>8,v&255,0,0,0xFF,0xFF];return mf([0x46,0xA0+c].concat(rec(0x0B,n),rec(0x0C,n)))}
    if(cmd==='0902')return mf([0x49,0x02,0x01].concat(asc(VIN)));
    if(cmd==='0904')return mf([0x49,0x04,0x01].concat(asc(CAL)));
    return 'NO DATA'},
@@ -1397,7 +1406,7 @@ async function obConnect(kind){
  }catch(e){OBX.busy='';OBX.connected=false;if(OBX.tx){try{await OBX.tx.close()}catch(_){}OBX.tx=null}obLog('Falha: '+(e.message||e));render();toast(e.name==='NotFoundError'?'Nenhum dispositivo selecionado':(e.message||'Falha ao conectar').slice(0,120))}
 }
 function obAfterDrop(){OBX.live=false;OBX.loopId++;OBX.connected=false;OBX.tx=null;OBX.rec&&obStopRec();render()}
-async function obDisconnect(){OBX.live=false;OBX.loopId++;if(OBX.rec)obStopRec();const t=OBX.tx;OBX.tx=null;OBX.connected=false;try{if(t)await t.close()}catch(e){}obLog('Scanner desconectado.');render()}
+async function obDisconnect(){OBX.live=false;OBX.loopId++;if(OBX.tst.run)OBX.tst.run.abort=true;if(OBX.modRun)OBX.modRun.abort=true;if(OBX.rec)obStopRec();const t=OBX.tx;OBX.tx=null;OBX.connected=false;try{if(t)await t.close()}catch(e){}obLog('Scanner desconectado.');render()}
 /* ---------- leitura ao vivo ---------- */
 function obStartLive(){if(OBX.live||!OBX.connected)return;OBX.live=true;const id=++OBX.loopId;OBX.t0=OBX.t0||Date.now();obLoop(id);render()}
 function obStopLive(){OBX.live=false;OBX.loopId++;render()}
@@ -1492,18 +1501,26 @@ function obFindings(){
  if(V.stft1!=null&&Math.abs(V.stft1)>15)add(1,'Correção curta oscilando muito ('+obFmt('stft1',V.stft1)+' %)','Verifique sonda lambda e vazamentos de admissão/escape.');
  if(V.map!=null&&V.rpm>0&&V.rpm<1000&&V.speed===0&&V.map>55)add(1,'Pressão no coletor alta em marcha lenta ('+Math.round(V.map)+' kPa)','Esperado ~25–45 kPa. Pode indicar atraso de ignição, escape restrito ou vazamento de vácuo.');
  if(V.load!=null&&V.rpm>0&&V.rpm<1000&&V.speed===0&&V.load>50)add(1,'Carga do motor alta em marcha lenta ('+Math.round(V.load)+' %)','Pode indicar admissão falsa, borboleta suja ou carga elétrica excessiva.');
+ const ti=OBX.tst&&OBX.tst.idle,tw=OBX.tst&&OBX.tst.warm;
+ if(ti&&!ti.invalid)ti.notes.forEach(n=>{if(ti.lvl>0)add(ti.lvl,'Teste de marcha lenta · irregularidade '+(Math.round(ti.cv*100)/100).toString().replace('.',',')+' %',n)});
+ if(tw&&!tw.invalid&&!tw.inconclusive&&tw.lvl>0)add(tw.lvl,'Teste de aquecimento',tw.txt);
  const sev=f.reduce((a,x)=>a+(x.lvl===3?25:x.lvl===2?10:x.lvl===1?3:0),0);const score=Math.max(0,100-sev);
  return {items:f.sort((a,b)=>b.lvl-a.lvl),score:score};
 }
 function obSaveScan(){
- const v=V();const fi=obFindings();const sc={id:uid(),at:new Date().toISOString(),dtc:OBX.dtc?{stored:OBX.dtc.stored,pending:OBX.dtc.pending,perm:OBX.dtc.perm}:null,mil:OBX.ready?OBX.ready.mil:null,vin:OBX.vin||'',score:fi.score,vals:Object.assign({},OBX.vals),adapter:OBX.adapter};
- v.scans=(v.scans||[]);v.scans.unshift(sc);v.scans=v.scans.slice(0,25);save();toast('Diagnóstico salvo no histórico do veículo.');render();
+ const v=V(),fi=obFindings(),strip=o=>o?JSON.parse(JSON.stringify(o)):null;
+ const tests={idle:strip(OBX.tst.idle&&!OBX.tst.idle.invalid?OBX.tst.idle:null),warm:strip(OBX.tst.warm&&!OBX.tst.warm.invalid&&!OBX.tst.warm.inconclusive?OBX.tst.warm:null)};
+ const sc={id:uid(),at:new Date().toISOString(),dtc:OBX.dtc?{stored:OBX.dtc.stored,pending:OBX.dtc.pending,perm:OBX.dtc.perm}:null,mil:OBX.ready?OBX.ready.mil:null,vin:OBX.vin||'',score:fi.score,vals:Object.assign({},OBX.vals),adapter:OBX.adapter,tests:tests,cond:{rpm:OBX.vals.rpm==null?null:OBX.vals.rpm,coolant:OBX.vals.coolant==null?null:OBX.vals.coolant},demo:OBX.kind==='sim'};
+ v.scans=(v.scans||[]);v.scans.unshift(sc);v.scans=v.scans.slice(0,40);save();toast('Diagnóstico salvo no histórico do veículo.');render();
 }
 function obSyncOdo(){const v=V();const o=OBX.vals.odo;if(o==null)return;const km=Math.round(o);const date=new Date().toLocaleDateString('sv-SE');v.odo=(v.odo||[]).filter(r=>r.date!==date);v.odo.push({date:date,km:km});save();toast('Quilometragem do painel ('+fmt(km)+' km) registrada no app.');render()}
 function obReportText(){
  const v=V(),fi=obFindings(),L=['MEU CARRO — RELATÓRIO DE DIAGNÓSTICO OBD2','Veículo: '+(v.nick||v.model||''),'Data: '+new Date().toLocaleString('pt-BR'),'Adaptador: '+OBX.adapter+(OBX.kind==='sim'?' (DEMONSTRAÇÃO – dados simulados)':''),OBX.vin?'VIN: '+OBX.vin:'','Saúde geral: '+fi.score+'/100',''];
  L.push('ACHADOS');fi.items.forEach(x=>L.push('['+['info','baixa','atenção','URGENTE'][x.lvl]+'] '+x.t+' — '+x.b));
  L.push('','VALORES');OB_PIDS.forEach(p=>{if(OBX.vals[p[1]]!=null)L.push(p[2]+': '+obFmt(p[1],OBX.vals[p[1]])+' '+p[3])});
+ if(OBX.tst&&OBX.tst.idle&&!OBX.tst.idle.invalid){const r=OBX.tst.idle;L.push('','TESTE DE MARCHA LENTA','Rotação média '+Math.round(r.rpm)+' rpm · irregularidade '+r.cv.toFixed(2)+' % · quedas '+r.dips);r.notes.forEach(n=>L.push('- '+n))}
+ if(OBX.tst&&OBX.tst.warm&&!OBX.tst.warm.invalid){const r=OBX.tst.warm;L.push('','TESTE DE AQUECIMENTO','Inicial '+Math.round(r.t0c)+' °C · trabalho '+Math.round(r.plateau)+' °C · pico '+Math.round(r.peak)+' °C','- '+r.txt)}
+ if(OBX.mods&&OBX.mods.list.length){L.push('','OUTROS MÓDULOS');OBX.mods.list.forEach(m=>L.push('Módulo '+m.h+(obModLabel(m.h)?' ('+obModLabel(m.h)+')':'')+': '+(m.codes.length?m.codes.map(c=>c.code+(c.ftb?'-'+c.ftb:'')).join(', '):'sem falhas')))}
  L.push('','Análise automática de apoio; não substitui diagnóstico profissional.','© 2026 Adriel Fernando. Todos os direitos reservados.');return L.filter((x,i)=>x!==''||i>0).join('\n');
 }
 /* ---------- visual ---------- */
@@ -1513,7 +1530,7 @@ function obSelectModal(){
  for(const g in groups){h+='<p style="margin:12px 0 4px"><b>'+esc(g)+'</b></p>';groups[g].forEach(p=>{const ok=!OBX.sup||OBX.sup.has(p[0]);h+='<label style="display:flex;gap:8px;align-items:center;padding:4px 0;'+(ok?'':'opacity:.45')+'"><input type="checkbox" data-obpid="'+p[1]+'" '+(OBX.sel.indexOf(p[1])>=0?'checked ':'')+(ok?'':'disabled ')+'> '+esc(p[2])+' <span class="muted">('+p[3]+')</span></label>'})}
  h+='<div class="actions" style="margin-top:14px"><button class="btn" data-act="close">Concluir</button></div>';openModal(h);
 }
-function obTabs(){const t=[['live','Ao vivo'],['dtc','Falhas'+(OBX.dtc?' ('+(OBX.dtc.stored.length+OBX.dtc.pending.length)+')':'')],['ready','Prontidão'],['info','Veículo'],['rep','Relatório']];return '<div class="seg" role="tablist" style="margin:14px 0">'+t.map(x=>'<button role="tab" aria-selected="'+(OBX.tab===x[0])+'" data-act="ob-tab" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'}
+function obTabs(){const t=[['live','Ao vivo'],['dtc','Falhas'+(OBX.dtc?' ('+(OBX.dtc.stored.length+OBX.dtc.pending.length)+')':'')],['tests','Testes'],['mods','Módulos'],['ready','Prontidão'],['info','Veículo'],['rep','Relatório'],['hist','Histórico']];return '<div class="seg" role="tablist" style="margin:14px 0">'+t.map(x=>'<button role="tab" aria-selected="'+(OBX.tab===x[0])+'" data-act="ob-tab" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'}
 function obLvl(l){return ['<span class="pill l0">OK</span>','<span class="pill l1">Baixa</span>','<span class="pill l2">Atenção</span>','<span class="pill l3">Urgente</span>'][l]}
 function obTabLive(){
  let h='<div class="obd-tools"><button class="btn sm" data-act="ob-'+(OBX.live?'pause':'play')+'">'+(OBX.live?'Pausar leitura':'Retomar leitura')+'</button><button class="btn ghost sm" data-act="ob-pids">Parâmetros ('+OBX.sel.length+')</button>'+
@@ -1554,12 +1571,13 @@ function obView(){
  h+='<div class="obd-status"><span class="obd-led '+(c?'on':'')+'"></span>'+(c?'Conectado · '+esc(OBX.adapter)+(OBX.kind==='sim'?' (demonstração)':''):'Desconectado')+(OBX.busy?' · '+esc(OBX.busy):'')+'</div>';
  if(!c){h+='<p class="muted" style="margin-top:8px">Compatível com adaptadores ELM327/OBDII (Bluetooth). Ligue a ignição, pluge o scanner na tomada OBD (sob o painel) e conecte.</p><div class="obd-tools" style="margin-top:12px"><button class="btn" data-act="ob-ble" '+(OBX.busy?'disabled':'')+'>Conectar via Bluetooth (BLE)</button><button class="btn ghost" data-act="ob-native" '+(OBX.busy?'disabled':'')+'>Scanner clássico (app Android)</button><button class="btn ghost" data-act="ob-sim" '+(OBX.busy?'disabled':'')+'>Modo demonstração</button></div>'+
   '<p class="obd-note" style="margin-top:12px"><b>Como conectar:</b> no <b>Chrome/Edge (Android)</b> use “Conectar via Bluetooth” com adaptadores <b>BLE</b> (Vgate iCar Pro BLE, Veepeak OBDCheck BLE, OBDLink CX, etc.) — não precisa parear antes. Adaptadores ELM327 <b>Bluetooth Clássico</b> (os mais baratos) funcionam pelo app Android instalado, depois de pareados. No <b>iPhone</b>, o Safari não suporta Bluetooth na web; use o navegador Bluefy ou um adaptador BLE com o app nativo.</p>';}
- else{h+='<div class="obd-tools" style="margin-top:10px"><button class="btn ghost sm" data-act="ob-disc">Desconectar</button></div>'+obTabs()+({live:obTabLive,dtc:obTabDtc,ready:obTabReady,info:obTabInfo,rep:obTabRep})[OBX.tab]();}
+ else{h+='<div class="obd-tools" style="margin-top:10px"><button class="btn ghost sm" data-act="ob-disc">Desconectar</button></div>'+obTabs()+({live:obTabLive,dtc:obTabDtc,tests:obTabTests,mods:obTabMods,ready:obTabReady,info:obTabInfo,rep:obTabRep,hist:obTabHist})[OBX.tab]();}
  h+='</section>';
  if(OBX.log.length||c)h+='<details class="card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">Registro da comunicação</summary><pre class="obd-log" id="ob-log">'+esc(OBX.log.join('\n'))+'</pre></details>';
  return h;
 }
 function obAct(a,el){
+ if(obAct2(a,el))return;
  switch(a){
   case 'ob-ble':obConnect('ble');break;
   case 'ob-native':obConnect('native');break;
@@ -1582,6 +1600,253 @@ function obAct(a,el){
   case 'ob-odo':obSyncOdo();break;
   case 'ob-vin':{const v=V();v.vin=OBX.vin;save();toast('VIN salvo na ficha.');render();break}
  }
+}
+
+/* ================= Testes guiados, módulos e histórico ================= */
+OBX.tst={run:null,idle:null,warm:null};OBX.mods=null;OBX.modRun=null;OBX.hm='ltft1';OBX.scn='drive';
+function obClock(){return OBX.kind==='sim'&&OBX.simT?OBX.simT()*1000:Date.now()}
+function obMean(a){return a.reduce((s,x)=>s+x,0)/a.length}
+function obSd(a){const m=obMean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)*(x-m),0)/a.length)}
+function obPauseLive(){OBX.live=false;OBX.loopId++}
+function obTstProg(pct,msg){if(OBX.tst.run){OBX.tst.run.pct=pct;OBX.tst.run.msg=msg}const b=$('#ob-tst-bar'),m=$('#ob-tst-msg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg}
+const obHex2=n=>('0'+n.toString(16)).slice(-2).toUpperCase();
+function obDtcName(x){return 'PCBU'[x>>14]+((x>>12)&3)+('000'+(x&0xFFF).toString(16).toUpperCase()).slice(-3)}
+/* Modo 06: contadores de falha de ignição por cilindro (MIDs A1–AC, TIDs 0B/0C) */
+async function obRead06(){
+ let sup=null;
+ try{const g=obGroups(await obCmd('06A0',3000));for(const gr of g){const i=gr.findIndex((x,j)=>x===0x46&&gr[j+1]===0xA0);if(i>=0&&gr.length>=i+6){sup=gr.slice(i+2,i+6);break}}}catch(e){}
+ if(!sup)return null;
+ const m=(sup[0]*16777216)+(sup[1]*65536)+(sup[2]*256)+sup[3],cyl={};
+ for(let c=1;c<=12;c++){if(Math.floor(m/Math.pow(2,32-c))%2!==1)continue;const mid=0xA0+c;
+  try{const g=obGroups(await obCmd('06'+obHex2(mid),3000));
+   for(const gr of g){const i=gr.findIndex((x,j)=>x===0x46&&gr[j+1]===mid);if(i<0)continue;let k=i+2;
+    while(k+8<=gr.length){const tid=gr[k],tv=gr[k+2]*256+gr[k+3];if(tid===0x0B||tid===0x0C){cyl[c]=cyl[c]||{};cyl[c]['t'+obHex2(tid)]=tv}k+=8}}
+  }catch(e){}}
+ return Object.keys(cyl).length?cyl:null;
+}
+/* ---- teste de marcha lenta / falha de ignição ---- */
+async function obTestIdle(){
+ if(OBX.tst.run||!OBX.connected||!OBX.sup)return;
+ const wasLive=OBX.live;obPauseLive();
+ const R={type:'idle',pct:0,msg:'Lendo contadores de falha de ignição…'};OBX.tst.run=R;OBX.tst.idle=null;OBX.tab='tests';render();
+ const keys=['rpm','speed','load','stft1','ltft1','map','maf','coolant'].filter(k=>OBX.sup.has(OB_BY_KEY[k][0]));
+ try{
+  const before=await obRead06().catch(()=>null);
+  const D=30000,t0=obClock(),S=[];
+  while(OBX.connected&&OBX.tst.run===R&&!R.abort){
+   const el=obClock()-t0;if(el>=D&&S.length>=20)break;
+   S.push(await obReadPids(keys));
+   obTstProg(Math.min(99,Math.round(el/D*100)),'Medindo marcha lenta… '+Math.min(30,Math.round(el/1000))+' s');
+   if(OBX.kind!=='sim')await obSleep(60);
+  }
+  if(R.abort||!OBX.connected){toast('Teste cancelado');return}
+  obTstProg(100,'Lendo contadores finais…');
+  const after=await obRead06().catch(()=>null);
+  OBX.tst.idle=obIdleEval(S,before,after);
+ }catch(e){obLog('Teste falhou: '+(e.message||e));toast('O teste foi interrompido')}
+ finally{OBX.tst.run=null;if(wasLive&&OBX.connected)obStartLive();else render()}
+}
+function obIdleEval(S,b,a){
+ const run=S.filter(x=>x.rpm!=null&&(x.speed==null||x.speed===0)),r={at:new Date().toISOString(),n:run.length,total:S.length};
+ if(run.length<10||obMean(run.map(x=>x.rpm))<400){r.invalid=S.some(x=>x.speed>0)?'O carro estava em movimento. Faça o teste parado, em marcha lenta.':'Motor desligado ou sem leituras suficientes. Ligue o motor e mantenha em marcha lenta.';return r}
+ const rp=run.map(x=>x.rpm),m=obMean(rp),med=rp.slice().sort((x,y)=>x-y)[Math.floor(rp.length/2)];
+ r.rpm=m;r.cv=obSd(rp)/m*100;r.min=Math.min.apply(null,rp);r.max=Math.max.apply(null,rp);r.dips=rp.filter(x=>x<med*0.93).length;
+ const avg=k=>{const q=run.map(x=>x[k]).filter(x=>x!=null);return q.length?obMean(q):null};
+ r.load=avg('load');r.map=avg('map');r.stft=avg('stft1');r.ltft=avg('ltft1');r.coolant=avg('coolant');r.mis=null;
+ if(b&&a){const rows=[];let tot=0;for(const c in a){const bb=b[c]||{},aa=a[c];const d=Math.max(0,(aa.t0B||0)-(bb.t0B||0),(aa.t0C||0)-(bb.t0C||0));rows.push({c:Number(c),d:d,before:bb,after:aa});tot+=d}r.mis={rows:rows,total:tot}}
+ let lvl=0;if(r.cv>=2.5||r.dips>=4)lvl=3;else if(r.cv>=1.2||r.dips>=2)lvl=2;
+ if(r.mis&&r.mis.total>=3)lvl=Math.max(lvl,3);else if(r.mis&&r.mis.total>0)lvl=Math.max(lvl,2);
+ r.lvl=lvl;
+ const bad=r.mis?r.mis.rows.filter(x=>x.d>0).sort((x,y)=>y.d-x.d):[],notes=[];
+ if(bad.length===1)notes.push('Falhas concentradas no cilindro '+bad[0].c+' ('+bad[0].d+' ocorrências durante o teste): verifique vela, bobina/cabo e injetor desse cilindro e, se persistir, a compressão.');
+ else if(bad.length>1)notes.push('Falhas em vários cilindros ('+bad.map(x=>'cil. '+x.c+': '+x.d).join(', ')+'): suspeite de causa comum — mistura (entrada de ar, pressão/filtro de combustível), velas vencidas ou combustível ruim.');
+ if(r.ltft!=null&&r.ltft>8)notes.push('Correção longa positiva ('+r.ltft.toFixed(1).replace('.',',')+' %) indica mistura pobre: procure entrada falsa de ar e MAF sujo.');
+ if(r.dips>=2&&!r.mis)notes.push('Quedas pontuais de rotação ('+r.dips+') sugerem falha de ignição intermitente. Este carro não informa contagem por cilindro: troque velas/bobinas de posição para isolar o cilindro.');
+ if(r.coolant!=null&&r.coolant<70)notes.push('O motor ainda estava frio ('+Math.round(r.coolant)+' °C); a marcha lenta fria é naturalmente mais irregular. Repita com o motor quente (≥ 80 °C).');
+ if(!notes.length)notes.push(lvl===0?'Marcha lenta estável, sem sinais de falha de ignição nesta medição.':'Irregularidade detectada, mas sem padrão claro. Repita o teste com o motor quente.');
+ r.notes=notes;return r;
+}
+/* ---- teste de aquecimento / termostato ---- */
+function obWarmDone(S){const T=S.length?S[S.length-1].t:0;if(T>=1500)return true;if(T<360)return false;const w=S.filter(x=>x.t>=T-180).map(x=>x.c);return w.length>20&&Math.max.apply(null,w)-Math.min.apply(null,w)<=4&&obMean(w)>=75}
+async function obTestWarm(){
+ if(OBX.tst.run||!OBX.connected||!OBX.sup)return;
+ if(!OBX.sup.has(0x05)){toast('Este carro não informa a temperatura do motor');return}
+ const wasLive=OBX.live;obPauseLive();if(OBX.simReset)OBX.simReset();
+ const R={type:'warm',pct:0,msg:'Acompanhando a temperatura…',samples:[],t0:obClock()};OBX.tst.run=R;OBX.tst.warm=null;OBX.tab='tests';render();
+ const keys=['coolant','rpm','speed','iat'].filter(k=>OBX.sup.has(OB_BY_KEY[k][0]));
+ try{
+  while(OBX.connected&&OBX.tst.run===R&&!R.stop&&!R.abort){
+   const v=await obReadPids(keys),t=(obClock()-R.t0)/1000;
+   if(v.coolant!=null){R.samples.push({t:t,c:v.coolant,rpm:v.rpm,speed:v.speed});obWarmPaint(R)}
+   if(obWarmDone(R.samples))break;
+   if(OBX.kind!=='sim')await obSleep(900);
+  }
+  if(R.abort||!OBX.connected){toast('Teste cancelado');return}
+  OBX.tst.warm=obWarmEval(R.samples);
+ }catch(e){obLog('Teste falhou: '+(e.message||e));toast('O teste foi interrompido')}
+ finally{OBX.tst.run=null;if(wasLive&&OBX.connected)obStartLive();else render()}
+}
+function obWarmPaint(R){const S=R.samples,l=S[S.length-1],m=$('#ob-tst-msg');if(m)m.textContent='Motor a '+Math.round(l.c)+' °C · '+Math.floor(l.t/60)+' min '+Math.round(l.t%60)+' s';const c=$('#ob-warm-chart');if(c)c.innerHTML=obWarmChart(S)}
+function obWarmChart(S){
+ if(!S||S.length<2)return '';const w=300,h=130,T=Math.max(S[S.length-1].t,120),lo=20,hi=110;
+ const X=t=>(t/T*(w-30)+26).toFixed(1),Y=c=>(h-14-((Math.min(hi,Math.max(lo,c))-lo)/(hi-lo))*(h-24)).toFixed(1);
+ const pts=S.map(x=>X(x.t)+','+Y(x.c)).join(' ');
+ const ref=[[80,'80°'],[95,'95°']].map(r=>'<line x1="26" x2="'+(w-4)+'" y1="'+Y(r[0])+'" y2="'+Y(r[0])+'" stroke="var(--line)" stroke-dasharray="3 3"/><text x="2" y="'+(Number(Y(r[0]))+3)+'" font-size="9" fill="var(--ink2)">'+r[1]+'</text>').join('');
+ return '<svg viewBox="0 0 '+w+' '+h+'" class="csv-chart" role="img" aria-label="Temperatura do motor ao longo do tempo">'+ref+'<polyline points="'+pts+'" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="26" y="'+(h-2)+'" font-size="9" fill="var(--ink2)">0</text><text x="'+(w-4)+'" y="'+(h-2)+'" font-size="9" text-anchor="end" fill="var(--ink2)">'+Math.round(T/60)+' min</text></svg>';
+}
+function obWarmEval(S){
+ const r={at:new Date().toISOString(),n:S.length};
+ if(S.length<5){r.invalid='Poucas leituras. Deixe o teste rodar por mais tempo.';return r}
+ const T=S[S.length-1].t;r.dur=T;r.t0c=S[0].c;r.peak=Math.max.apply(null,S.map(x=>x.c));
+ const first=th=>{const p=S.find(x=>x.c>=th);return p?p.t:null};r.t60=first(60);r.t70=first(70);r.t80=first(80);
+ const w=S.filter(x=>x.t>=T-180);r.plateau=obMean(w.map(x=>x.c));r.amp=Math.max.apply(null,w.map(x=>x.c))-Math.min.apply(null,w.map(x=>x.c));
+ const P=Math.round(r.plateau),min=Math.round(T/60);let lvl=0,txt;
+ if(r.peak>108){lvl=3;txt='A temperatura chegou a '+Math.round(r.peak)+' °C: risco de superaquecimento. Pare o motor e verifique nível do líquido, ventoinha, bomba d’água e termostato.'}
+ else if(T<300){txt='Teste curto demais para concluir. Continue por pelo menos 6–10 minutos, de preferência com o carro em movimento.';r.inconclusive=true}
+ else if(r.t0c>=70){txt='O teste começou com o motor já quente ('+Math.round(r.t0c)+' °C), então só dá para avaliar a estabilidade: média de '+P+' °C, oscilação de '+r.amp.toFixed(0)+' °C.'+(r.amp>10?' A oscilação é alta: ventoinha ligando com frequência ou termostato instável.':'');if(r.amp>10)lvl=1}
+ else if(r.plateau<76&&T>=600){lvl=2;txt='Após '+min+' min o motor ficou em '+P+' °C, abaixo da temperatura de trabalho. Suspeita de termostato preso aberto (aumenta consumo e desgaste) ou sensor de temperatura. Confirme também numa viagem.'}
+ else if(r.plateau<76){txt='Ainda em '+P+' °C após '+min+' min. Continue o teste por mais alguns minutos antes de concluir.';r.inconclusive=true}
+ else if(r.plateau>100){lvl=2;txt='Temperatura de trabalho alta ('+P+' °C). Verifique nível e estado do líquido, ventoinha, radiador e tampa do radiador.'}
+ else if(r.amp>10){lvl=1;txt='A temperatura oscila '+r.amp.toFixed(0)+' °C depois de estabilizar ('+P+' °C em média): ventoinha acionando com frequência ou termostato instável.'}
+ else txt='Aquecimento normal: chegou a 80 °C em '+(r.t80!=null?Math.round(r.t80/60*10)/10+' min':'—')+' e estabilizou em '+P+' °C.';
+ r.lvl=lvl;r.txt=txt;return r;
+}
+/* ---- varredura de módulos (CAN 11 bits, somente leitura) ---- */
+function obModProg(pct,msg){if(OBX.modRun){OBX.modRun.pct=pct;OBX.modRun.msg=msg}const b=$('#ob-mod-bar'),m=$('#ob-mod-msg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg}
+async function obProbe(h){
+ try{await obCmd('ATSH'+h,1500)}catch(e){return null}
+ const out={h:h,codes:[],kind:'',present:false};let g=[];
+ try{g=obGroups(await obCmd('1902FF',1500))}catch(e){}
+ for(const gr of g){
+  const i=gr.findIndex((x,j)=>x===0x59&&gr[j+1]===2);
+  if(i>=0){out.present=true;out.kind='UDS';let k=i+3;while(k+3<gr.length){const x=gr[k]*256+gr[k+1],st=gr[k+3];if(x||gr[k+2])out.codes.push({code:obDtcName(x),ftb:obHex2(gr[k+2]),conf:!!(st&8),pend:!!(st&4),act:!!(st&1),lamp:!!(st&128)});k+=4}}
+  else{const j=gr.findIndex((x,q)=>x===0x7F&&gr[q+1]===0x19);if(j>=0){out.present=true;out.kind='UDS'}}
+ }
+ if(!out.codes.length){
+  try{const l=await obCmd('03',1500),gg=obGroups(l);if(gg.some(x=>x.indexOf(0x43)>=0)){out.present=true;out.kind='OBD';obParseDtc(l,3).forEach(c=>out.codes.push({code:c,ftb:'',conf:true,pend:false,act:true,lamp:false}))}}catch(e){}
+ }
+ return out.present?out:null;
+}
+async function obScanModules(ext){
+ if(OBX.modRun||!OBX.connected)return;
+ const proto=String(OBX.proto||'').replace(/^A/,'');
+ if(proto!=='6'&&proto!=='8'){toast('A varredura exige CAN de 11 bits; este carro usa o protocolo '+(proto||'desconhecido')+'.');return}
+ const wasLive=OBX.live;obPauseLive();
+ const list=[];for(let a=0x7E0;a<=0x7E7;a++)list.push(a.toString(16).toUpperCase());
+ if(ext)for(let a=0x700;a<0x7DF;a++)list.push(a.toString(16).toUpperCase());
+ const R={pct:0,msg:'Iniciando…'};OBX.modRun=R;OBX.tab='mods';render();
+ const found=[];
+ try{
+  try{await obCmd('ATST19',1500)}catch(e){}
+  for(let i=0;i<list.length&&OBX.modRun===R&&!R.abort&&OBX.connected;i++){obModProg(Math.round(i/list.length*100),'Consultando '+list[i]+' ('+(i+1)+'/'+list.length+')…');const r=await obProbe(list[i]);if(r)found.push(r)}
+ }catch(e){obLog('Varredura falhou: '+(e.message||e))}
+ finally{if(OBX.connected){try{await obCmd('ATSH7DF',1500)}catch(e){}try{await obCmd('ATST32',1500)}catch(e){}}
+  OBX.mods={at:new Date().toISOString(),list:found,ext:!!ext};OBX.modRun=null;if(wasLive&&OBX.connected)obStartLive();else render()}
+}
+async function obReadModule(h){
+ h=String(h||'').toUpperCase();if(!/^[0-9A-F]{3}$/.test(h)){toast('Informe o endereço com 3 dígitos hexadecimais (ex.: 7B0)');return}
+ if(OBX.busy||OBX.modRun)return;const wasLive=OBX.live;obPauseLive();OBX.busy='Consultando '+h+'…';render();
+ try{const r=await obProbe(h);try{await obCmd('ATSH7DF',1500)}catch(e){}
+  OBX.mods=OBX.mods||{at:new Date().toISOString(),list:[]};OBX.mods.list=OBX.mods.list.filter(x=>x.h!==h);if(r)OBX.mods.list.push(r);else toast('O módulo '+h+' não respondeu.')}
+ finally{OBX.busy='';if(wasLive&&OBX.connected)obStartLive();else render()}
+}
+function obModLabel(h){const v=V();const l=(v.modLabels||{})[h];if(l)return l;return h==='7E0'?'Motor (ECM)':h==='7E1'?'Câmbio (TCM)':''}
+/* ---- histórico / tendência ---- */
+const OB_HM=[
+ ['ltft1','Correção longa de combustível (B1)','%',s=>s.vals&&s.vals.ltft1],
+ ['stft1','Correção curta de combustível (B1)','%',s=>s.vals&&s.vals.stft1],
+ ['volt','Tensão do módulo','V',s=>s.vals&&s.vals.volt],
+ ['map','Pressão no coletor (MAP)','kPa',s=>s.vals&&s.vals.map],
+ ['maf','Fluxo de ar (MAF)','g/s',s=>s.vals&&s.vals.maf],
+ ['load','Carga do motor','%',s=>s.vals&&s.vals.load],
+ ['idleCv','Irregularidade da marcha lenta','%',s=>s.tests&&s.tests.idle&&s.tests.idle.cv],
+ ['misTotal','Falhas de ignição no teste','',s=>s.tests&&s.tests.idle&&s.tests.idle.mis?s.tests.idle.mis.total:null],
+ ['warmPlat','Temperatura de trabalho','°C',s=>s.tests&&s.tests.warm&&s.tests.warm.plateau],
+ ['warm70','Tempo até 70 °C','s',s=>s.tests&&s.tests.warm&&s.tests.warm.t70],
+ ['score','Saúde geral','/100',s=>s.score]
+];
+function obSeries(key){const d=OB_HM.find(x=>x[0]===key);if(!d)return [];return (V().scans||[]).slice().reverse().map(s=>({s:s,v:d[3](s)})).filter(x=>x.v!=null&&Number.isFinite(x.v))}
+function obTrend(key,ser){
+ if(ser.length<2)return '';const a=ser[0].v,b=ser[ser.length-1].v,d=b-a,days=Math.max(1,Math.round((new Date(ser[ser.length-1].s.at)-new Date(ser[0].s.at))/864e5));
+ const n=x=>String(Math.round(x*10)/10).replace('.',','),span=' em '+days+' dia(s)';
+ if(key==='ltft1'||key==='stft1'){const A=Math.abs(a),B=Math.abs(b);if(B-A>=3&&B>=6)return 'A correção passou de '+n(a)+' % para '+n(b)+' %'+span+': a central está compensando cada vez mais. '+(b>0?'Antecipe a checagem de entrada falsa de ar, MAF e pressão de combustível.':'Verifique bicos, regulador de pressão e sonda.');if(A-B>=3)return 'A correção diminuiu de '+n(a)+' % para '+n(b)+' %'+span+' — melhora.'}
+ if(key==='volt'&&a-b>=0.4)return 'A tensão caiu '+n(a-b)+' V'+span+'. Observe bateria e alternador antes de ficar na mão.';
+ if(key==='idleCv'&&d>=1)return 'A marcha lenta ficou mais irregular'+span+' ('+n(a)+' % → '+n(b)+' %). Revise velas, bobinas e entrada de ar.';
+ if(key==='warmPlat'&&Math.abs(d)>=6)return 'A temperatura de trabalho mudou '+n(d)+' °C'+span+'. '+(d<0?'Possível termostato começando a abrir fora de hora.':'Confira arrefecimento (nível, ventoinha, radiador).');
+ if(key==='misTotal'&&d>0)return 'As falhas de ignição contadas aumentaram'+span+'.';
+ if(key==='score'&&d<=-10)return 'A nota geral caiu '+n(-d)+' pontos'+span+'.';
+ if(Math.abs(d)<0.02*Math.max(Math.abs(a),Math.abs(b),1))return 'Sem variação relevante entre os registros.';
+ return 'Variação de '+n(d)+span+' (de '+n(a)+' para '+n(b)+'). Compare sempre em condições parecidas (motor quente, mesma rotação).';
+}
+function obHistChart(ser,unit){
+ if(ser.length<2)return '';const w=300,h=130,vs=ser.map(x=>x.v);let lo=Math.min.apply(null,vs),hi=Math.max.apply(null,vs);if(hi-lo<1e-6){hi=lo+1;lo=lo-1}const pad=(hi-lo)*0.15;lo-=pad;hi+=pad;
+ const X=i=>(i/(ser.length-1)*(w-44)+34).toFixed(1),Y=v=>(h-16-((v-lo)/(hi-lo))*(h-30)).toFixed(1);
+ const pts=ser.map((x,i)=>X(i)+','+Y(x.v)).join(' ');
+ return '<svg viewBox="0 0 '+w+' '+h+'" class="csv-chart" role="img" aria-label="Evolução ao longo dos diagnósticos salvos"><text x="2" y="'+(Number(Y(vs[vs.length-1]))-6)+'" font-size="9" fill="var(--ink2)">'+esc(unit)+'</text><polyline points="'+pts+'" fill="none" stroke="var(--accent)" stroke-width="2"/>'+ser.map((x,i)=>'<circle cx="'+X(i)+'" cy="'+Y(x.v)+'" r="3.2" fill="var(--accent)"/>').join('')+'</svg>';
+}
+/* ---- telas ---- */
+function obIdleHtml(r){
+ if(!r)return '';
+ if(r.invalid)return '<div class="csv-find"><b>Teste inválido</b><small>'+esc(r.invalid)+'</small></div>';
+ const f=(x,d)=>x==null?'—':String(Math.round(x*Math.pow(10,d))/Math.pow(10,d)).replace('.',',');
+ let h='<div class="csv-find"><b>Resultado '+obLvl(r.lvl)+'</b>'+r.notes.map(n=>'<small>'+esc(n)+'</small>').join('')+'</div><div class="csv-table"><table><tbody><tr><td>Rotação média</td><td>'+f(r.rpm,0)+' rpm (mín '+f(r.min,0)+' · máx '+f(r.max,0)+')</td></tr><tr><td>Irregularidade</td><td>'+f(r.cv,2)+' % <span class="muted">(< 1,2 % é estável)</span></td></tr><tr><td>Quedas de rotação</td><td>'+r.dips+'</td></tr><tr><td>Correção longa / curta</td><td>'+f(r.ltft,1)+' % / '+f(r.stft,1)+' %</td></tr><tr><td>Carga · MAP</td><td>'+f(r.load,0)+' % · '+f(r.map,0)+' kPa</td></tr></tbody></table></div>';
+ if(r.mis)h+='<h3 style="margin:14px 0 6px;font-size:15px">Contadores por cilindro (modo 06)</h3><div class="csv-table"><table><tbody>'+r.mis.rows.map(x=>'<tr><td>Cilindro '+x.c+'</td><td>'+(x.d>0?'<b>+'+x.d+' no teste</b>':'sem novas falhas')+' <span class="muted">(antes '+(x.before.t0B!=null?x.before.t0B:'—')+'/'+(x.before.t0C!=null?x.before.t0C:'—')+' · depois '+(x.after.t0B!=null?x.after.t0B:'—')+'/'+(x.after.t0C!=null?x.after.t0C:'—')+')</span></td></tr>').join('')+'</tbody></table></div>';
+ else h+='<p class="obd-note">Este carro não informa contadores de falha por cilindro (modo 06); a avaliação usa a estabilidade da rotação.</p>';
+ return h+'<div class="obd-tools" style="margin-top:10px"><button class="btn sm" data-act="ob-save">Salvar no histórico</button></div>';
+}
+function obWarmHtml(r){
+ if(!r)return '';
+ if(r.invalid)return '<div class="csv-find"><b>Teste inválido</b><small>'+esc(r.invalid)+'</small></div>';
+ const tm=x=>x==null?'—':Math.floor(x/60)+' min '+Math.round(x%60)+' s';
+ return '<div class="csv-find"><b>Resultado '+(r.inconclusive?'<span class="tag">inconclusivo</span>':obLvl(r.lvl))+'</b><small>'+esc(r.txt)+'</small></div><div class="csv-table"><table><tbody><tr><td>Temperatura inicial</td><td>'+Math.round(r.t0c)+' °C</td></tr><tr><td>Até 60 / 70 / 80 °C</td><td>'+tm(r.t60)+' · '+tm(r.t70)+' · '+tm(r.t80)+'</td></tr><tr><td>Pico</td><td>'+Math.round(r.peak)+' °C</td></tr><tr><td>Temperatura de trabalho</td><td>'+Math.round(r.plateau)+' °C (oscilação '+r.amp.toFixed(0)+' °C)</td></tr><tr><td>Duração</td><td>'+tm(r.dur)+'</td></tr></tbody></table></div><div class="obd-tools" style="margin-top:10px"><button class="btn sm" data-act="ob-save">Salvar no histórico</button></div>';
+}
+function obTabTests(){
+ const R=OBX.tst.run;let h='';
+ if(OBX.kind==='sim')h+='<label class="f" style="max-width:340px">Simulador · cenário do carro<select id="ob-scn">'+[['drive','Em movimento (normal)'],['idle','Marcha lenta (normal)'],['misfire3','Falha de ignição no cilindro 3'],['thermo','Termostato preso aberto']].map(o=>'<option value="'+o[0]+'"'+(OBX.scn===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></label>';
+ const prog=(type)=>'<div style="margin-top:10px"><div style="height:8px;border-radius:6px;background:var(--surface2);overflow:hidden"><div id="ob-tst-bar" style="height:100%;width:'+R.pct+'%;background:var(--accent);transition:width .3s"></div></div><p class="obd-note" id="ob-tst-msg">'+esc(R.msg)+'</p><div class="obd-tools"><button class="btn ghost sm" data-act="ob-tst-cancel">Cancelar</button>'+(type==='warm'?'<button class="btn sm" data-act="ob-tst-stop">Parar e avaliar</button>':'')+'</div></div>';
+ h+='<section class="card" style="margin-top:12px"><div class="card-h"><h2>Falha de ignição · marcha lenta</h2></div><p class="muted">Com o motor <b>quente</b>, o carro <b>parado</b> e sem acessórios, o app mede 30 s a estabilidade da rotação e, se o carro suportar, os contadores de falha por cilindro.</p>';
+ if(R&&R.type==='idle')h+=prog('idle');else h+='<div class="obd-tools" style="margin-top:10px"><button class="btn sm" data-act="ob-t-idle"'+(R||OBX.busy?' disabled':'')+'>Iniciar teste (30 s)</button></div>'+obIdleHtml(OBX.tst.idle);
+ h+='</section><section class="card" style="margin-top:16px"><div class="card-h"><h2>Aquecimento · termostato</h2></div><p class="muted">Ligue o carro <b>frio</b> (de preferência há horas parado) e inicie o teste: o app acompanha a temperatura até estabilizar. Quanto mais tempo e com o carro rodando, mais confiável.</p>';
+ if(R&&R.type==='warm')h+='<div id="ob-warm-chart" style="margin-top:10px">'+obWarmChart(R.samples)+'</div>'+prog('warm');else h+='<div class="obd-tools" style="margin-top:10px"><button class="btn sm" data-act="ob-t-warm"'+(R||OBX.busy?' disabled':'')+'>Iniciar acompanhamento</button></div>'+obWarmHtml(OBX.tst.warm);
+ return h+'</section>';
+}
+function obTabMods(){
+ const M=OBX.mods,run=OBX.modRun;
+ let h='<p class="muted">Procura outros módulos do carro (ABS, airbag, câmbio, carroceria…) e lê os códigos de falha deles. É <b>somente leitura</b>. Faça com a <b>ignição ligada e o motor desligado</b>. Funciona só em carros CAN de 11 bits e depende do carro responder ao adaptador.</p>';
+ if(run)h+='<div style="margin-top:10px"><div style="height:8px;border-radius:6px;background:var(--surface2);overflow:hidden"><div id="ob-mod-bar" style="height:100%;width:'+run.pct+'%;background:var(--accent);transition:width .2s"></div></div><p class="obd-note" id="ob-mod-msg">'+esc(run.msg)+'</p><div class="obd-tools"><button class="btn ghost sm" data-act="ob-mod-cancel">Parar</button></div></div>';
+ else h+='<div class="obd-tools" style="margin-top:10px"><button class="btn sm" data-act="ob-mod-scan">Varredura rápida (7E0–7E7)</button><button class="btn ghost sm" data-act="ob-mod-scan-ext">Varredura ampliada (~1 min)</button></div><div class="obd-tools" style="margin-top:10px"><input id="ob-mod-h" class="obd-select" style="min-width:0;width:130px;text-transform:uppercase" maxlength="3" placeholder="Endereço (ex.: 7B0)" aria-label="Endereço do módulo"><button class="btn ghost sm" data-act="ob-mod-one">Ler este módulo</button></div>';
+ if(M&&!run){
+  h+='<h3 style="margin:16px 0 6px;font-size:15px">Módulos encontrados ('+M.list.length+')</h3>';
+  if(!M.list.length)h+='<p class="muted">Nenhum módulo respondeu. Tente a varredura ampliada ou informe o endereço do módulo do seu modelo.</p>';
+  M.list.forEach(m=>{h+='<div class="csv-find"><b>Módulo '+m.h+' <span class="tag">'+(m.kind==='UDS'?'UDS':'OBD-II')+'</span></b><label class="f" style="margin:6px 0"><span class="muted">Nome</span><input data-obmod="'+m.h+'" value="'+esc(obModLabel(m.h))+'" placeholder="Ex.: ABS" maxlength="30"></label>'+
+   (m.codes.length?m.codes.map(c=>{const i=obDtcInfo(c.code);return '<div style="margin:6px 0"><b>'+c.code+(c.ftb?'-'+c.ftb:'')+'</b> '+(c.act?'<span class="pill l2">Ativa</span> ':'')+(c.conf?'<span class="pill l1">Confirmada</span> ':'')+(c.pend?'<span class="pill l1">Pendente</span>':'')+'<br><small>'+esc(i.d)+(i.known?' · Verificar: '+esc(i.c):'')+'</small></div>'}).join(''):'<small>Sem códigos de falha armazenados.</small>')+'</div>'});
+  h+='<p class="obd-note">Códigos de ABS (C), carroceria (B) e rede (U) são em geral específicos do fabricante: use o código para pesquisar no manual ou numa oficina. O app não apaga falhas desses módulos.</p>';
+ }
+ return h;
+}
+function obTabHist(){
+ const sc=V().scans||[];
+ if(!sc.length)return '<p class="muted">Ainda não há diagnósticos salvos para este veículo. Faça uma leitura, rode os testes e toque em <b>Salvar no histórico</b>; depois de 2 ou mais registros o app mostra a evolução e avisa quando algo estiver piorando.</p>';
+ const ser=obSeries(OBX.hm),d=OB_HM.find(x=>x[0]===OBX.hm)||OB_HM[0];
+ let h='<label class="f" style="max-width:360px">Acompanhar<select id="ob-hm">'+OB_HM.map(o=>'<option value="'+o[0]+'"'+(OBX.hm===o[0]?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select></label>';
+ if(ser.length>=2){const t=obTrend(OBX.hm,ser);h+=obHistChart(ser,d[2])+(t?'<div class="csv-find"><b>Tendência</b><small>'+esc(t)+'</small></div>':'')}
+ else h+='<p class="muted" style="margin-top:10px">Este indicador tem '+ser.length+' registro(s). São necessários pelo menos 2 para ver a evolução.</p>';
+ h+='<div class="csv-table" style="margin-top:12px"><table><thead><tr><th>Data</th><th>'+esc(d[1])+'</th><th>Saúde</th><th></th></tr></thead><tbody>'+sc.map(s=>{const v=d[3](s);return '<tr><td>'+new Date(s.at).toLocaleDateString('pt-BR')+'</td><td>'+(v==null?'—':String(Math.round(v*10)/10).replace('.',',')+' '+d[2])+'</td><td>'+s.score+'</td><td><button class="icon-btn flat" data-act="ob-scan-del" data-id="'+s.id+'" aria-label="Excluir registro">'+ic('trash')+'</button></td></tr>'}).join('')+'</tbody></table></div><p class="obd-note">Compare registros feitos em condições parecidas (motor quente, mesma rotação). As correções de combustível variam com temperatura e carga.</p>';
+ return h;
+}
+function obAct2(a,el){
+ switch(a){
+  case 'ob-t-idle':obTestIdle();return true;
+  case 'ob-t-warm':obTestWarm();return true;
+  case 'ob-tst-cancel':if(OBX.tst.run){OBX.tst.run.abort=true}return true;
+  case 'ob-tst-stop':if(OBX.tst.run)OBX.tst.run.stop=true;return true;
+  case 'ob-mod-scan':obScanModules(false);return true;
+  case 'ob-mod-scan-ext':obScanModules(true);return true;
+  case 'ob-mod-cancel':if(OBX.modRun)OBX.modRun.abort=true;return true;
+  case 'ob-mod-one':{const i=$('#ob-mod-h');obReadModule(i&&i.value);return true}
+  case 'ob-scan-del':{const v=V();v.scans=(v.scans||[]).filter(s=>s.id!==el.dataset.id);save();render();return true}
+ }
+ return false;
 }
 
 function viewObd(){const v=V();return obView()+'<section class="card" style="margin-top:16px"><div class="card-h"><h2>Diagnóstico por CSV · Car Scanner</h2><span class="tag">PWA · offline</span></div><p class="muted">Importe uma gravação CSV exportada do Car Scanner. O sistema reconhece automaticamente as colunas disponíveis, que podem variar conforme veículo, ECU, idioma e configuração do aplicativo.</p><div class="csv-zone" style="margin-top:14px"><label class="f">Arquivo CSV<input type="file" id="csv-file" accept=".csv,text/csv,text/plain"></label><p class="obd-note">Compatível com CSV delimitado por vírgula, ponto e vírgula ou tabulação; limite de 14 MB e 60 mil linhas.</p></div><p id="csv-error" class="csv-bad" role="alert">'+esc(CSV_DIAG.error)+'</p>'+
@@ -1836,6 +2101,9 @@ document.addEventListener('change',e=>{
   const t=e.target,v=V(),a=t.dataset&&t.dataset.act;
   if(t.closest&&t.closest('form[data-form=rec]'))updatePreview(t.closest('form'));
   if(t.dataset&&t.dataset.obpid){const k=t.dataset.obpid,i=OBX.sel.indexOf(k);if(t.checked&&i<0)OBX.sel.push(k);if(!t.checked&&i>=0)OBX.sel.splice(i,1);if(!OBX.sel.length){OBX.sel.push(k);t.checked=true}return}
+  if(t.id==='ob-scn'){OBX.scn=t.value;return}
+  if(t.id==='ob-hm'){OBX.hm=t.value;render();return}
+  if(t.dataset&&t.dataset.obmod){const vv=V();vv.modLabels=vv.modLabels||{};vv.modLabels[t.dataset.obmod]=t.value.trim();save();return}
   if(t.id==='csv-file'){csvLoad(t.files&&t.files[0]);return}
   if(t.id==='csv-metric'){CSV_DIAG.selection=t.value;render();return}
   if(t.id==='fItem'){UI.fItem=t.value;$('#histList').innerHTML=histList(v)}
