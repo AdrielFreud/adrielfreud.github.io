@@ -22,6 +22,31 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+/* Aparência independente dos dados dos veículos */
+(function(){
+  try {
+    const mode=localStorage.getItem('meu-carro-aparencia') || 'auto';
+    if(mode==='light'||mode==='dark') document.documentElement.dataset.theme=mode;
+    else document.documentElement.removeAttribute('data-theme');
+    document.documentElement.style.colorScheme=mode==='auto'?'light dark':mode;
+    const meta=document.querySelector('meta[name="theme-color"]');
+    if(meta)meta.content=(mode==='dark'||(mode==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'#0F1216':'#EDEFF2';
+  }catch(e){}
+})();
+function setAppAppearance(mode){
+  if(!['auto','light','dark'].includes(mode))return;
+  try{localStorage.setItem('meu-carro-aparencia',mode)}catch(e){}
+  if(mode==='auto')document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.dataset.theme=mode;
+  document.documentElement.style.colorScheme=mode==='auto'?'light dark':mode;
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.content=(mode==='dark'||(mode==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'#0F1216':'#EDEFF2';
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{
+  try{if((localStorage.getItem('meu-carro-aparencia')||'auto')==='auto')setAppAppearance('auto')}catch(e){}
+});
+</script>
 <style>
 /* Layout: sidebar + conteúdo no desktop; barra de abas inferior no celular. Visual de painel de instrumentos: números condensados, odômetro, vareta de óleo. */
 :root{
@@ -50,6 +75,7 @@
     color-scheme:dark;
   }
 }
+:root[data-theme="light"]{color-scheme:light}
 :root[data-theme="dark"]{
   --bg:#0F1216; --surface:#171B21; --surface2:#1E232A; --ink:#E8EBF0; --ink2:#9AA4B2; --line:#2B323B;
   --accent:#8FB2E8; --accent-ink:#0F1216; --accent-soft:#1E2A3D;
@@ -936,6 +962,7 @@ function viewAjustes(){
   const num=(k,lab,sub,step)=>'<div class="srow"><div class="t"><b>'+lab+'</b><small>'+sub+'</small></div><input type="number" min="0" step="'+step+'" inputmode="numeric" data-set="'+k+'" value="'+st[k]+'" aria-label="'+lab+'"></div>';
   const sw=(k,lab,sub)=>'<div class="srow"><div class="t"><b>'+lab+'</b><small>'+sub+'</small></div><label class="sw"><input type="checkbox" data-set="'+k+'"'+(st[k]?' checked':'')+' aria-label="'+lab+'"><span></span></label></div>';
   return '<div class="set-grid" style="margin-top:6px"><div class="stack-grid">'+
+   '<section class="card"><div class="card-h"><h2>Aparência</h2></div><div class="srow"><div class="t"><b>Tema do aplicativo</b><small>Escolha o visual de sua preferência. O modo automático acompanha o dispositivo.</small></div><select id="appearance-mode" aria-label="Tema do aplicativo"><option value="auto"'+(localStorage.getItem("meu-carro-aparencia")===null||localStorage.getItem("meu-carro-aparencia")==="auto"?" selected":"")+'>Automático</option><option value="light"'+(localStorage.getItem("meu-carro-aparencia")==="light"?" selected":"")+'>Claro</option><option value="dark"'+(localStorage.getItem("meu-carro-aparencia")==="dark"?" selected":"")+'>Escuro</option></select></div></section>'+
    '<section class="card"><div class="card-h"><h2>Quando avisar</h2></div>'+
     num('alertKm','Atenção a partir de (km)','Quantos km antes do vencimento o item vira Atenção.',100)+
     num('alertDays','Atenção a partir de (dias)','Quantos dias antes do prazo o item vira Atenção.',1)+
@@ -1849,9 +1876,7 @@ function obAct2(a,el){
  return false;
 }
 
-function viewObd(){const v=V();return obView()+'<section class="card" style="margin-top:16px"><div class="card-h"><h2>Diagnóstico por CSV · Car Scanner</h2><span class="tag">PWA · offline</span></div><p class="muted">Importe uma gravação CSV exportada do Car Scanner. O sistema reconhece automaticamente as colunas disponíveis, que podem variar conforme veículo, ECU, idioma e configuração do aplicativo.</p><div class="csv-zone" style="margin-top:14px"><label class="f">Arquivo CSV<input type="file" id="csv-file" accept=".csv,text/csv,text/plain"></label><p class="obd-note">Compatível com CSV delimitado por vírgula, ponto e vírgula ou tabulação; limite de 14 MB e 60 mil linhas.</p></div><p id="csv-error" class="csv-bad" role="alert">'+esc(CSV_DIAG.error)+'</p>'+
- (CSV_DIAG.raw?'<div class="obd-tools" style="margin-top:10px"><span class="tag">'+esc(CSV_DIAG.file)+'</span><button class="btn ghost sm" data-act="csv-clear">Limpar análise</button><button class="btn ghost sm" data-act="csv-export">Exportar relatório</button></div>':'')+'</section>'+
- '<section class="card" style="margin-top:16px"><div class="card-h"><h2>Veículo selecionado</h2></div><p><b>'+esc(v.nick||v.model||'Veículo')+'</b></p><p class="obd-note">O CSV não identifica obrigatoriamente o carro de origem. Confirme que o arquivo pertence ao veículo selecionado antes de interpretar os dados. A análise não modifica a quilometragem nem o histórico de manutenção.</p></section>'+csvReportHtml();}
+function viewObd(){return obView();}
 async function csvLoad(file){if(!file)return;CSV_DIAG.error='';try{if(file.size>14e6)throw Error('Arquivo acima de 14 MB.');const txt=await file.text();const parsed=csvParse(txt);CSV_DIAG.raw=parsed;CSV_DIAG.file=file.name;CSV_DIAG.vehicleId=S.activeId;CSV_DIAG.selection='';CSV_DIAG.report=csvAnalyze(parsed);render();toast('CSV analisado: '+parsed.data.length+' linhas.')}catch(e){CSV_DIAG.error=e.message||'Não foi possível ler o arquivo';render()}}
 function csvExport(){if(!CSV_DIAG.raw)return;const a=CSV_DIAG.report,p=CSV_DIAG.raw;const text=['MEU CARRO — RELATÓRIO DE ANÁLISE CSV','Arquivo: '+CSV_DIAG.file,'Veículo selecionado: '+(V().nick||V().model||''),'Registros: '+p.data.length,'Formato: '+a.format,'Duração: '+(a.span==null?'não informada':a.span+' segundos'),'','PARÂMETROS',...a.metrics.map(m=>m.name+' | mín '+m.stats.min.toFixed(2)+' | média '+m.stats.avg.toFixed(2)+' | máx '+m.stats.max.toFixed(2)+' '+m.unit),'','OBSERVAÇÕES',...a.findings.map(f=>f.title+': '+f.body),'','Análise exploratória; não substitui diagnóstico profissional.'].join('\n');const blob=new Blob([text],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='diagnostico-meu-carro.txt';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 
@@ -2104,6 +2129,7 @@ document.addEventListener('change',e=>{
   if(t.id==='ob-scn'){OBX.scn=t.value;return}
   if(t.id==='ob-hm'){OBX.hm=t.value;render();return}
   if(t.dataset&&t.dataset.obmod){const vv=V();vv.modLabels=vv.modLabels||{};vv.modLabels[t.dataset.obmod]=t.value.trim();save();return}
+  if(t.id==='appearance-mode'){setAppAppearance(t.value);render();toast('Aparência salva');return}
   if(t.id==='csv-file'){csvLoad(t.files&&t.files[0]);return}
   if(t.id==='csv-metric'){CSV_DIAG.selection=t.value;render();return}
   if(t.id==='fItem'){UI.fItem=t.value;$('#histList').innerHTML=histList(v)}
