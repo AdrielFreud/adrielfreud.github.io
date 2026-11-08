@@ -27,7 +27,7 @@ Abra no Chrome e toque em **Instalar app**.
 
 ## Novidades (versão com FIPE e Diagnóstico)
 - **Consulta FIPE** na aba Meu Carro (precisa de internet; usa fipe.parallelum.com.br).
-- **Diagnóstico** (nova aba): análise offline de CSV exportado do Car Scanner. A leitura OBD2 ao vivo só funciona no app Android nativo (plugin ObdClassic).
+- **Diagnóstico** (nova aba): análise via ELM327. A leitura OBD2 ao vivo só funciona no app Android nativo (plugin ObdClassic).
 - Sugestão offline de óleo de motor e câmbio mantida.
 
 ## Scanner OBD2 Bluetooth (aba Diagnóstico)
