@@ -27,7 +27,7 @@ Abra no Chrome e toque em **Instalar app**.
 
 ## Novidades (versão com FIPE e Diagnóstico)
 - **Consulta FIPE** na aba Meu Carro (precisa de internet; usa fipe.parallelum.com.br).
-- **Diagnóstico** (nova aba): análise via ELM327. A leitura OBD2 ao vivo só funciona no app Android nativo (plugin ObdClassic).
+- **Diagnóstico** (nova aba): análise offline de CSV exportado do Car Scanner. A leitura OBD2 ao vivo só funciona no app Android nativo (plugin ObdClassic).
 - Sugestão offline de óleo de motor e câmbio mantida.
 
 ## Scanner OBD2 Bluetooth (aba Diagnóstico)
@@ -41,3 +41,8 @@ Abra no Chrome e toque em **Instalar app**.
 - **Testes:** marcha lenta/falha de ignição (estabilidade da rotação + contadores por cilindro via modo 06, quando o carro informa) e aquecimento/termostato (curva de temperatura).
 - **Módulos:** varredura somente leitura de outros módulos (ABS, airbag, câmbio…) em CAN 11 bits, com leitura por endereço e nomes editáveis.
 - **Histórico:** evolução de indicadores entre diagnósticos salvos, com aviso de tendência de piora.
+
+## Notificações e aparência
+- **Aparência:** tema automático, claro ou escuro em Ajustes.
+- **Notificações:** no app Android, avisos agendados no aparelho (manutenção por km/prazo, vencimento de IPVA/licenciamento/seguro e lembrete de atualizar a quilometragem), mesmo com o app fechado. No navegador, aviso diário ao abrir o app.
+- **Armazenamento:** cópia interna em IndexedDB, armazenamento persistente e backup em arquivo.

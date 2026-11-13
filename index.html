@@ -92,6 +92,64 @@ html,body{height:auto}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:40}
 body.lock{overflow:hidden}
+.pn{position:fixed;inset:0;z-index:200;background:#03060a;overflow:hidden;--pa:#38d6ff;--pg:rgba(56,214,255,.35);color:#e8f1f7;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;user-select:none;-webkit-user-select:none}
+.pn[data-c=amber]{--pa:#ffb02e;--pg:rgba(255,176,46,.35)}
+.pn[data-c=green]{--pa:#46f0a0;--pg:rgba(70,240,160,.32)}
+.pn-stage{position:absolute;left:50%;top:50%;width:1024px;height:600px;transform-origin:center center;background:radial-gradient(ellipse at 50% 45%,#0c1a26 0,#060d14 55%,#03060a 100%)}
+.pn button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.pn-top{position:absolute;left:0;right:0;top:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:12px}
+.pn-chip{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18);font-size:15px;font-weight:600;min-height:44px}
+.pn-chip .ic{width:18px;height:18px}
+.pn-chip.ok{color:#46f0a0;border-color:rgba(70,240,160,.5)}.pn-chip.warn{color:#ffb02e;border-color:rgba(255,176,46,.7);background:rgba(255,176,46,.1)}
+.pn-tabs{display:flex;gap:4px;background:rgba(255,255,255,.06);padding:4px;border-radius:999px}
+.pn-tabs button{padding:9px 20px;border-radius:999px;font-size:16px;font-weight:600;color:#9fb3c2;min-height:44px}
+.pn-tabs button[aria-selected=true]{background:var(--pa);color:#03121a}
+.pn-right{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.pn-ib{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:17px}
+.pn-ib .ic{width:20px;height:20px}
+.pn-led{width:10px;height:10px;border-radius:50%;background:#555}.pn-led.on{background:#46f0a0;box-shadow:0 0 8px #46f0a0}
+.pn .pn-btn{padding:10px 18px;border-radius:10px;background:var(--pa);color:#03121a;font-weight:700;font-size:15px;min-height:44px}
+.pn .pn-btn.ghost{background:rgba(255,255,255,.1);color:#e8f1f7}.pn .pn-btn.sm{padding:6px 12px;min-height:36px;font-size:13px}
+.pn-body{position:absolute;left:0;right:0;top:56px;bottom:0}
+.pn-col{position:absolute;top:10px;bottom:90px;width:230px;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.pn-col.l{left:14px;align-items:center}.pn-col.r{right:18px;width:250px}
+.pn-center{position:absolute;left:250px;right:270px;top:0;bottom:80px;display:grid;place-items:center}
+.pn-big{width:100%;height:100%}
+.pn-track{stroke:rgba(255,255,255,.09)}.pn-red{stroke:#ff4d4d;opacity:.55}
+.pn-fill{stroke:var(--pa)}.pn-fill.hot{stroke:#ff4d4d}
+.pn-glow{stroke:var(--pg);opacity:.55}
+.pn-tick{stroke:rgba(255,255,255,.4);stroke-width:2}.pn-tick.red{stroke:#ff6b6b}
+.pn-tl{fill:#9fb3c2;font-size:17px;font-weight:600}.pn-tl.red{fill:#ff8a8a}
+.pn-speed{fill:#fff;font-size:120px;font-weight:700;font-variant-numeric:tabular-nums}
+.pn-unit{fill:var(--pa);font-size:22px;letter-spacing:.14em}
+.pn-rpmv{fill:#e8f1f7;font-size:30px;font-weight:600;font-variant-numeric:tabular-nums}.pn-unit2{fill:#9fb3c2;font-size:18px}
+.pn-mini{width:170px;text-align:center}.pn-mini svg{width:170px;height:170px;display:block}.pn-mini b{display:block;margin-top:-18px;font-size:13px;font-weight:600;color:#9fb3c2}
+.pn-mv{fill:#fff;font-size:44px;font-weight:700;font-variant-numeric:tabular-nums}.pn-mu{fill:#9fb3c2;font-size:17px}
+[data-lv=warn] .pn-fill,[data-lv=warn].pn-tile{stroke:#ffb02e}[data-lv=bad] .pn-fill{stroke:#ff4d4d}
+[data-lv=warn] .pn-mv,[data-lv=warn] b{color:#ffb02e;fill:#ffb02e}[data-lv=bad] .pn-mv,[data-lv=bad] b{color:#ff5a5a;fill:#ff5a5a}
+.pn-bar{width:100%}.pn-bl{display:flex;align-items:baseline;gap:6px;font-size:14px;color:#9fb3c2}.pn-bl b{margin-left:auto;font-size:26px;color:#fff;font-variant-numeric:tabular-nums}.pn-bl small{font-size:13px}
+.pn-bt{height:10px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:4px}.pn-bt i{display:block;height:100%;width:0;background:var(--pa);border-radius:6px}
+.pn-bt.wide{height:16px;margin-top:14px}
+.pn-stat{display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.05)}
+.pn-stat span{font-size:13px;color:#9fb3c2}.pn-stat b{font-size:28px;font-variant-numeric:tabular-nums}.pn-stat small{font-size:12px;color:#7e93a3}
+.pn-col.r .pn-stat{flex-direction:row;align-items:baseline;gap:8px}.pn-col.r .pn-stat b{margin-left:auto}
+.pn-strip{position:absolute;left:14px;right:14px;bottom:10px;height:72px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pn-strip .pn-stat{flex-direction:row;flex-wrap:wrap;align-items:baseline;align-content:center}.pn-strip .pn-stat span{width:100%}
+.pn-eco{position:absolute;inset:14px 24px 24px;display:grid;grid-template-columns:1fr 1.3fr;gap:20px;grid-template-rows:1fr auto}
+.pn-ecomain{padding:26px;border-radius:18px;background:rgba(255,255,255,.05);display:flex;flex-direction:column;justify-content:center}
+.pn-ecomain span{color:#9fb3c2;font-size:18px}.pn-ecomain b{font-size:110px;line-height:1.05;color:var(--pa);font-variant-numeric:tabular-nums}.pn-ecomain small{font-size:22px;color:#9fb3c2}
+.pn-ecogrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pn-ecogrid .pn-stat{justify-content:center}.pn-ecogrid .pn-stat b{font-size:38px}
+.pn-ecobtn{grid-column:1/3;display:flex;align-items:center;gap:14px}.pn-ecobtn small{color:#7e93a3;font-size:13px}
+.pn-mech{position:absolute;inset:14px 18px 18px;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:10px}
+.pn-tile{padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.05);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.pn-tile span{font-size:13px;color:#9fb3c2}.pn-tile b{font-size:34px;font-variant-numeric:tabular-nums;font-weight:700}.pn-tile b i{font-style:normal}.pn-tile b small{font-size:14px;color:#7e93a3;font-weight:500}
+.pn-sp{height:26px}
+.pn-alert{position:absolute;left:50%;top:64px;transform:translateX(-50%);width:760px;display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:16px;background:#2a1d05;border:2px solid #ffb02e;box-shadow:0 10px 40px rgba(0,0,0,.6);z-index:5}
+.pn-alert[hidden]{display:none}.pn-alert.l3{background:#2d0a0a;border-color:#ff4d4d}
+.pn-ai .ic{width:34px;height:34px;color:#ffb02e}.pn-alert.l3 .ic{color:#ff4d4d}
+.pn-at{flex:1;display:flex;flex-direction:column;gap:2px}.pn-at b{font-size:19px}.pn-at span{font-size:14px;color:#c9d6df}
+.pn-aa{display:flex;gap:8px}
+
 h1,h2,h3,p{margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -567,8 +625,27 @@ function seed(){
 const KEY='km-em-dia:v1';
 let S;
 function load(){try{const t=localStorage.getItem(KEY);if(!t)return null;const o=JSON.parse(t);return(o&&Array.isArray(o.vehicles)&&o.vehicles.length&&o.settings)?o:null}catch(e){return null}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const APP_VERSION='1.4.0';
+/* Armazenamento: localStorage + cópia interna em IndexedDB + pedido de armazenamento persistente */
+const STO={persisted:null,idb:null,lastErr:false,ready:false};
+function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('meu-carro',1);r.onupgradeneeded=()=>{r.result.createObjectStore('kv')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+let idbTimer=null;
+function idbPut(o){if(!STO.ready)return;clearTimeout(idbTimer);idbTimer=setTimeout(async()=>{try{const db=await idbOpen();const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(JSON.stringify(o),'state');tx.oncomplete=()=>{STO.idb=Date.now();db.close()};tx.onerror=()=>{STO.idb=false}}catch(e){STO.idb=false}},300)}
+async function idbGet(){try{const db=await idbOpen();return await new Promise(res=>{const r=db.transaction('kv').objectStore('kv').get('state');r.onsuccess=()=>{db.close();try{res(r.result?JSON.parse(r.result):null)}catch(e){res(null)}};r.onerror=()=>res(null)})}catch(e){return null}}
+function validState(o){return !!(o&&Array.isArray(o.vehicles)&&o.vehicles.length&&o.settings)}
+function save(){
+  S.meta=Object.assign({},S.meta,{schema:2,updatedAt:Date.now()});
+  try{localStorage.setItem(KEY,JSON.stringify(S));STO.lastErr=false}catch(e){if(!STO.lastErr){STO.lastErr=true;try{toast('Não foi possível salvar neste aparelho. Exporte um backup agora.')}catch(_){}}}
+  idbPut(S);
+  try{ntKick()}catch(e){}
+}
+const HAD_LOCAL=!!load();
 S=load()||seed();
+try{if(navigator.storage&&navigator.storage.persist){navigator.storage.persisted().then(p=>p?p:navigator.storage.persist()).then(p=>{STO.persisted=!!p}).catch(()=>{})}}catch(e){}
+(async function recover(){
+  if(!HAD_LOCAL){const o=await idbGet();if(validState(o)){S=o;if(!S.vehicles.some(x=>x.id===S.activeId))S.activeId=S.vehicles[0].id;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}STO.ready=true;try{render();toast('Seus dados foram recuperados da cópia interna.')}catch(e){}return}}
+  STO.ready=true;idbPut(S);
+})();
 // Atualiza somente veículos de demonstração conhecidos, preservando cadastros reais.
 (function migrateExampleCars(){
   let changed=false;
@@ -973,15 +1050,15 @@ function viewAjustes(){
     '<div class="srow"><div class="t"><b>Como estimar km por dia</b><small>Hoje: '+Math.round(kdi.v)+' km/dia ('+kdi.src+'). Usado para prever a data de cada troca.</small></div><select data-set="kmDayMode" aria-label="Modo do ritmo"><option value="auto"'+(st.kmDayMode==='auto'?' selected':'')+'>Automático</option><option value="manual"'+(st.kmDayMode==='manual'?' selected':'')+'>Manual</option></select></div>'+
     num('kmDayManual','Km por dia (manual)','Usado no modo manual ou quando há poucas leituras.',1)+'</section></div>'+
    '<div class="stack-grid"><section class="card"><div class="card-h"><h2>Notificações</h2></div>'+
-    sw('push','Notificação no celular','Aviso quando um item entrar em Atenção, Urgente ou Vencido.')+
-    sw('email','Resumo por e-mail','Lista dos itens pendentes do veículo ativo.')+
+    sw('push','Notificação no celular','Aviso quando um item entrar em Atenção, Urgente ou Vencido, vencimentos de documentos e lembrete de atualizar a quilometragem.')+ntStatusHtml()+
+    sw('email','Resumo por e-mail (em breve)','Ainda não disponível.')+
     sw('weekly','Resumo semanal','Toda segunda-feira, mesmo sem alertas novos.')+
-    '<div class="srow"><div class="t"><b>Horário do aviso</b><small>Notificações simuladas neste protótipo.</small></div><input type="time" data-set="hour" value="'+esc(st.hour)+'" aria-label="Horário do aviso"></div>'+
+    '<div class="srow"><div class="t"><b>Horário do aviso</b><small>Hora em que os avisos chegam.</small></div><input type="time" data-set="hour" value="'+esc(st.hour)+'" aria-label="Horário do aviso"></div>'+
     '<div style="margin-top:12px" class="notif"><span class="app">'+ic('oilcan')+'</span><div><b>Meu Carro <small>· agora</small></b><p>'+nTxt+'</p></div></div>'+
     '<div class="actions"><button class="btn ghost" data-act="push">'+ic('bell')+'Testar notificação</button></div></section>'+
-   '<section class="card"><div class="card-h"><h2>Dados</h2></div><p class="muted">Seus registros ficam neste navegador. Exporte uma cópia para não perder nada.</p>'+
+   '<section class="card"><div class="card-h"><h2>Dados</h2></div><p class="muted">Seus registros ficam salvos neste aparelho, mesmo sem internet. Exporte uma cópia de tempos em tempos para não perder nada.</p>'+stoStatus()+
     '<div class="actions"><button class="btn ghost" data-act="export">'+ic('doc')+'Exportar JSON</button><button class="btn ghost" data-act="import">Importar</button><button class="btn ghost" data-act="reset-ask">Restaurar exemplo</button></div></section>'+
-    '<section class="card"><div class="card-h"><h2>Sobre</h2></div><p><b>Meu Carro</b> · versão 1.1</p><p class="muted" style="margin-top:4px">© 2026 Adriel Fernando. Todos os direitos reservados.</p></section></div></div>';
+    '<section class="card"><div class="card-h"><h2>Sobre</h2></div><p><b>Meu Carro</b> · versão '+APP_VERSION+'</p><p class="muted" style="margin-top:4px">© 2026 Adriel Fernando. Todos os direitos reservados.</p></section></div></div>';
 }
 
 
@@ -1312,6 +1389,31 @@ async function obOpenBle(){
    const out=await p;return out.replace(/>/g,'')},
   async close(){try{dev.gatt.disconnect()}catch(e){}}};
 }
+/* BLE nativo (app Android/Capacitor): o WebView não tem Web Bluetooth, então usa o plugin BluetoothLe */
+async function obOpenCapBle(){
+ const BLE=window.Capacitor.Plugins.BluetoothLe;
+ await BLE.initialize({androidNeverForLocation:true});
+ const dev=await BLE.requestDevice({optionalServices:OB_BLE_SVCS});const id=dev.deviceId;
+ await BLE.connect({deviceId:id,timeout:15000});
+ try{BLE.addListener('disconnected|'+id,()=>{if(OBX.connected){obLog('Bluetooth desconectado pelo adaptador.');obAfterDrop()}})}catch(e){}
+ const sv=await BLE.getServices({deviceId:id});let svc=null,rx=null,tx=null,noResp=false;
+ for(const s of (sv.services||[])){if(OB_BLE_SVCS.indexOf(String(s.uuid).toLowerCase())<0)continue;let r=null,t=null,nr=false;
+  for(const c of (s.characteristics||[])){const p=c.properties||{};if(!r&&(p.notify||p.indicate))r=c.uuid;if(!t&&(p.write||p.writeWithoutResponse)){t=c.uuid;nr=!!p.writeWithoutResponse&&!p.write}}
+  if(r&&t){svc=s.uuid;rx=r;tx=t;noResp=nr;break}}
+ if(!svc){try{await BLE.disconnect({deviceId:id})}catch(e){}throw new Error('O adaptador não expõe canal serial BLE. Se for Bluetooth Clássico, use “Scanner clássico”.')}
+ let buf='',wait=null;
+ const hexText=h=>{let s='';for(let i=0;i+1<h.length;i+=2)s+=String.fromCharCode(parseInt(h.substr(i,2),16));return s};
+ const toHex=a=>a.map(b=>('0'+b.toString(16)).slice(-2)).join('');
+ BLE.addListener('notification|'+id+'|'+svc+'|'+rx,ev=>{buf+=hexText(String(ev&&ev.value||''));if(buf.indexOf('>')>=0&&wait){const w=wait;wait=null;w(buf)}});
+ await BLE.startNotifications({deviceId:id,service:svc,characteristic:rx});
+ return {name:dev.name||'ELM327 BLE',
+  async send(cmd,timeout){buf='';const data=Array.from(new TextEncoder().encode(cmd+'\r'));
+   const p=new Promise((res,rej)=>{wait=res;setTimeout(()=>{if(wait===res){wait=null;rej(new Error('tempo esgotado'))}},timeout||4000)});
+   for(let i=0;i<data.length;i+=20){const o={deviceId:id,service:svc,characteristic:tx,value:toHex(data.slice(i,i+20))};if(noResp)await BLE.writeWithoutResponse(o);else await BLE.write(o)}
+   const out=await p;return out.replace(/>/g,'')},
+  async close(){try{await BLE.disconnect({deviceId:id})}catch(e){}}};
+}
+function obIsNative(){return !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()&&window.Capacitor.Plugins&&window.Capacitor.Plugins.BluetoothLe)}
 async function obOpenNative(){
  const b=obNativeBridge();if(!b)throw new Error('Scanner clássico exige o app Android instalado (plugin ObdClassic).');
  if(b.ensurePermissions)await b.ensurePermissions();
@@ -1325,7 +1427,7 @@ async function obOpenNative(){
 }
 /* Simulador ELM327 (modo demonstração) */
 function obOpenSim(){
- const st={t:0,h:'7DF',dtc:['P0171','P0420'],pend:['P0301'],cleared:false,ff:true};OBX.simT=()=>st.t;OBX.simReset=()=>{st.t=0};
+ const st={t:0,h:'7DF',dtc:['P0171','P0420'],pend:['P0301'],cleared:false,ff:true};OBX.simT=()=>st.t;OBX.simReset=()=>{st.t=0};OBX.simAddDtc=(c)=>{if(st.dtc.indexOf(c)<0)st.dtc.push(c)};
  const VIN='9BWAA05U5MP012345',CAL='VW5ZZZ0000012345';
  const hex=(arr)=>arr.map(b=>('0'+(b&255).toString(16)).slice(-2)).join('').toUpperCase();
  const asc=s=>Array.from(s).map(c=>c.charCodeAt(0));
@@ -1413,7 +1515,7 @@ async function obDiscover(){
 async function obConnect(kind){
  if(OBX.busy)return;OBX.busy='Conectando…';render();
  try{
-  let tx;if(kind==='ble')tx=await obOpenBle();else if(kind==='native')tx=await obOpenNative();else tx=obOpenSim();
+  let tx;if(kind==='ble')tx=obIsNative()?await obOpenCapBle():await obOpenBle();else if(kind==='native')tx=await obOpenNative();else tx=obOpenSim();
   OBX.tx=tx;OBX.kind=kind;OBX.adapter=tx.name;OBX.connected=true;OBX.q=Promise.resolve();OBX.batch=true;
   OBX.vals={};OBX.mn={};OBX.mx={};OBX.hist={};OBX.dtc=null;OBX.ff=null;OBX.ready=null;OBX.vin='';OBX.cal='';OBX.scan=null;
   obLog('Conectado: '+tx.name+(kind==='sim'?' (demonstração)':'')+'.');
@@ -1439,7 +1541,7 @@ function obStartLive(){if(OBX.live||!OBX.connected)return;OBX.live=true;const id
 function obStopLive(){OBX.live=false;OBX.loopId++;render()}
 async function obLoop(id){
  while(OBX.live&&OBX.loopId===id&&OBX.connected){
-  const keys=OBX.sel.slice();
+  const keys=obLoopKeys();
   try{const vals=await obReadPids(keys);const now=Date.now();
    if(OBX.loopId!==id)return;
    for(const k in vals){const v=vals[k];OBX.vals[k]=v;if(OBX.mn[k]==null||v<OBX.mn[k])OBX.mn[k]=v;if(OBX.mx[k]==null||v>OBX.mx[k])OBX.mx[k]=v;(OBX.hist[k]=OBX.hist[k]||[]).push(v);if(OBX.hist[k].length>90)OBX.hist[k].shift();obPaint(k)}
@@ -1596,15 +1698,17 @@ function obView(){
  const c=OBX.connected;
  let h='<section class="card" style="margin-top:6px"><div class="card-h"><h2>Scanner OBD2 · Bluetooth</h2><span class="tag">ELM327</span></div>';
  h+='<div class="obd-status"><span class="obd-led '+(c?'on':'')+'"></span>'+(c?'Conectado · '+esc(OBX.adapter)+(OBX.kind==='sim'?' (demonstração)':''):'Desconectado')+(OBX.busy?' · '+esc(OBX.busy):'')+'</div>';
- if(!c){h+='<p class="muted" style="margin-top:8px">Compatível com adaptadores ELM327/OBDII (Bluetooth). Ligue a ignição, pluge o scanner na tomada OBD (sob o painel) e conecte.</p><div class="obd-tools" style="margin-top:12px"><button class="btn" data-act="ob-ble" '+(OBX.busy?'disabled':'')+'>Conectar via Bluetooth (BLE)</button><button class="btn ghost" data-act="ob-native" '+(OBX.busy?'disabled':'')+'>Scanner clássico (app Android)</button><button class="btn ghost" data-act="ob-sim" '+(OBX.busy?'disabled':'')+'>Modo demonstração</button></div>'+
+ if(!c){h+='<p class="muted" style="margin-top:8px">Compatível com adaptadores ELM327/OBDII (Bluetooth). Ligue a ignição, pluge o scanner na tomada OBD (sob o painel) e conecte.</p><div class="obd-tools" style="margin-top:12px"><button class="btn" data-act="ob-ble" '+(OBX.busy?'disabled':'')+'>Conectar via Bluetooth (BLE)</button><button class="btn ghost" data-act="ob-native" '+(OBX.busy?'disabled':'')+'>Scanner clássico (app Android)</button><button class="btn ghost" data-act="ob-sim" '+(OBX.busy?'disabled':'')+'>Modo demonstração</button></div><div class="obd-tools" style="margin-top:10px"><button class="btn ghost" data-act="ob-panel">Ver Modo Painel (demonstração)</button></div>'+
   '<p class="obd-note" style="margin-top:12px"><b>Como conectar:</b> no <b>Chrome/Edge (Android)</b> use “Conectar via Bluetooth” com adaptadores <b>BLE</b> (Vgate iCar Pro BLE, Veepeak OBDCheck BLE, OBDLink CX, etc.) — não precisa parear antes. Adaptadores ELM327 <b>Bluetooth Clássico</b> (os mais baratos) funcionam pelo app Android instalado, depois de pareados. No <b>iPhone</b>, o Safari não suporta Bluetooth na web; use o navegador Bluefy ou um adaptador BLE com o app nativo.</p>';}
- else{h+='<div class="obd-tools" style="margin-top:10px"><button class="btn ghost sm" data-act="ob-disc">Desconectar</button></div>'+obTabs()+({live:obTabLive,dtc:obTabDtc,tests:obTabTests,mods:obTabMods,ready:obTabReady,info:obTabInfo,rep:obTabRep,hist:obTabHist})[OBX.tab]();}
+ else{h+='<div class="obd-tools" style="margin-top:10px"><button class="btn ghost sm" data-act="ob-disc">Desconectar</button><button class="btn sm" data-act="ob-panel">Abrir Modo Painel (tela cheia)</button></div>'+obTabs()+({live:obTabLive,dtc:obTabDtc,tests:obTabTests,mods:obTabMods,ready:obTabReady,info:obTabInfo,rep:obTabRep,hist:obTabHist})[OBX.tab]();}
+ if(!c)h+=obEventsHtml();
  h+='</section>';
  if(OBX.log.length||c)h+='<details class="card" style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">Registro da comunicação</summary><pre class="obd-log" id="ob-log">'+esc(OBX.log.join('\n'))+'</pre></details>';
  return h;
 }
 function obAct(a,el){
  if(obAct2(a,el))return;
+ if(pnAct(a,el))return;
  switch(a){
   case 'ob-ble':obConnect('ble');break;
   case 'ob-native':obConnect('native');break;
@@ -1853,13 +1957,13 @@ function obTabMods(){
 }
 function obTabHist(){
  const sc=V().scans||[];
- if(!sc.length)return '<p class="muted">Ainda não há diagnósticos salvos para este veículo. Faça uma leitura, rode os testes e toque em <b>Salvar no histórico</b>; depois de 2 ou mais registros o app mostra a evolução e avisa quando algo estiver piorando.</p>';
+ if(!sc.length)return obEventsHtml()+'<p class="muted">Ainda não há diagnósticos salvos para este veículo. Faça uma leitura, rode os testes e toque em <b>Salvar no histórico</b>; depois de 2 ou mais registros o app mostra a evolução e avisa quando algo estiver piorando.</p>';
  const ser=obSeries(OBX.hm),d=OB_HM.find(x=>x[0]===OBX.hm)||OB_HM[0];
  let h='<label class="f" style="max-width:360px">Acompanhar<select id="ob-hm">'+OB_HM.map(o=>'<option value="'+o[0]+'"'+(OBX.hm===o[0]?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select></label>';
  if(ser.length>=2){const t=obTrend(OBX.hm,ser);h+=obHistChart(ser,d[2])+(t?'<div class="csv-find"><b>Tendência</b><small>'+esc(t)+'</small></div>':'')}
  else h+='<p class="muted" style="margin-top:10px">Este indicador tem '+ser.length+' registro(s). São necessários pelo menos 2 para ver a evolução.</p>';
  h+='<div class="csv-table" style="margin-top:12px"><table><thead><tr><th>Data</th><th>'+esc(d[1])+'</th><th>Saúde</th><th></th></tr></thead><tbody>'+sc.map(s=>{const v=d[3](s);return '<tr><td>'+new Date(s.at).toLocaleDateString('pt-BR')+'</td><td>'+(v==null?'—':String(Math.round(v*10)/10).replace('.',',')+' '+d[2])+'</td><td>'+s.score+'</td><td><button class="icon-btn flat" data-act="ob-scan-del" data-id="'+s.id+'" aria-label="Excluir registro">'+ic('trash')+'</button></td></tr>'}).join('')+'</tbody></table></div><p class="obd-note">Compare registros feitos em condições parecidas (motor quente, mesma rotação). As correções de combustível variam com temperatura e carga.</p>';
- return h;
+ return h+obEventsHtml();
 }
 function obAct2(a,el){
  switch(a){
@@ -1876,7 +1980,202 @@ function obAct2(a,el){
  return false;
 }
 
-function viewObd(){return obView();}
+/* ================= Modo Painel (tela deitada para multimídia Android) ================= */
+const PN={open:false,scr:'sport',color:'cyan',sound:true,timers:[],cur:{},trip:{km:0,l:0,s:0,last:0},buf:[],last:{},base:null,known:[],wake:null,alertKey:''};
+try{PN.color=localStorage.getItem('meu-carro-painel-cor')||'cyan';PN.sound=localStorage.getItem('meu-carro-painel-som')!=='0'}catch(e){}
+const PN_COLORS=['cyan','amber','green'];
+const PN_W=1024,PN_H=600;
+const PN_FAST=['rpm','speed','throttle','load'];
+const PN_SLOW=['coolant','iat','volt','stft1','ltft1','map','maf','fuelrate','fuellevel','oiltemp','timing','ambient'];
+function pnSup(k){const d=OB_BY_KEY[k];return !!(d&&OBX.sup&&OBX.sup.has(d[0]))}
+let obCycle=0;
+function obLoopKeys(){
+ if(!OBX.panel)return OBX.sel.slice();
+ obCycle++;let keys=PN_FAST.filter(pnSup);
+ if(obCycle%5===1)keys=keys.concat(PN_SLOW.filter(pnSup));
+ return keys;
+}
+/* ---- combustível: consumo estimado ---- */
+function pnFuelPar(){const f=String(V().fuel||'').toLowerCase();if(f.indexOf('diesel')>=0)return{afr:14.5,rho:832};if(f.indexOf('etanol')>=0)return{afr:9.0,rho:809};return{afr:13.8,rho:750}}
+function pnLph(){const V0=OBX.vals;if(V0.fuelrate!=null)return V0.fuelrate;if(V0.maf!=null){const p=pnFuelPar();return V0.maf*3600/(p.afr*p.rho)}return null}
+/* ---- geometria dos mostradores ---- */
+function pnPt(cx,cy,r,a){const t=a*Math.PI/180;return [cx+r*Math.cos(t),cy+r*Math.sin(t)]}
+function pnArc(cx,cy,r,a0,a1){const p0=pnPt(cx,cy,r,a0),p1=pnPt(cx,cy,r,a1);return 'M'+p0[0].toFixed(1)+' '+p0[1].toFixed(1)+' A'+r+' '+r+' 0 '+((a1-a0)>180?1:0)+' 1 '+p1[0].toFixed(1)+' '+p1[1].toFixed(1)}
+const PN_A0=135,PN_SWEEP=270;
+function pnMini(id,label,unit,min,max,warn,bad){
+ const cx=100,cy=100,r=72,d=pnArc(cx,cy,r,PN_A0,PN_A0+PN_SWEEP);
+ return '<div class="pn-mini" id="pn-t-'+id+'" data-min="'+min+'" data-max="'+max+'" data-warn="'+(warn==null?'':warn)+'" data-bad="'+(bad==null?'':bad)+'"><svg viewBox="0 0 200 200"><path d="'+d+'" class="pn-track" stroke-width="14" fill="none" stroke-linecap="round"/><path id="pn-g-'+id+'g" d="'+d+'" class="pn-glow" stroke-width="24" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/><path id="pn-g-'+id+'" d="'+d+'" class="pn-fill" stroke-width="14" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/><text x="100" y="108" text-anchor="middle" class="pn-mv" id="pn-v-'+id+'">—</text><text x="100" y="132" text-anchor="middle" class="pn-mu">'+unit+'</text></svg><b>'+label+'</b></div>';
+}
+function pnBar(id,label,unit){return '<div class="pn-bar" id="pn-t-'+id+'"><div class="pn-bl"><span>'+label+'</span><b id="pn-v-'+id+'">—</b><small>'+unit+'</small></div><div class="pn-bt"><i id="pn-b-'+id+'"></i></div></div>'}
+function pnStat(id,label,unit){return '<div class="pn-stat" id="pn-t-'+id+'"><span>'+label+'</span><b id="pn-v-'+id+'">—</b><small>'+unit+'</small></div>'}
+function pnScrSport(){
+ const max=PN.max,cx=260,cy=262,R=222,ticks=[];
+ for(let i=0;i<=max/1000;i++){const a=PN_A0+i/(max/1000)*PN_SWEEP,p0=pnPt(cx,cy,R-16,a),p1=pnPt(cx,cy,R-34,a),pt=pnPt(cx,cy,R-56,a);ticks.push('<line x1="'+p0[0].toFixed(1)+'" y1="'+p0[1].toFixed(1)+'" x2="'+p1[0].toFixed(1)+'" y2="'+p1[1].toFixed(1)+'" class="pn-tick'+(i*1000>=PN.red?' red':'')+'"/><text x="'+pt[0].toFixed(1)+'" y="'+(pt[1]+7).toFixed(1)+'" text-anchor="middle" class="pn-tl'+(i*1000>=PN.red?' red':'')+'">'+i+'</text>')}
+ const full=pnArc(cx,cy,R,PN_A0,PN_A0+PN_SWEEP),redA=PN_A0+PN.red/max*PN_SWEEP,red=pnArc(cx,cy,R,redA,PN_A0+PN_SWEEP);
+ return '<div class="pn-col l">'+pnMini('coolant','Líquido de arrefec.','°C',40,130,102,108)+(pnSup('oiltemp')?pnMini('oiltemp','Óleo','°C',40,160,125,140):pnMini('iat','Ar de admissão','°C',0,80,60,75))+'</div>'+
+  '<div class="pn-center"><svg viewBox="0 0 520 480" class="pn-big"><path d="'+full+'" class="pn-track" stroke-width="22" fill="none" stroke-linecap="round"/><path d="'+red+'" class="pn-red" stroke-width="22" fill="none"/><path id="pn-g-rpmg" d="'+full+'" class="pn-glow" stroke-width="38" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/><path id="pn-g-rpm" d="'+full+'" class="pn-fill" stroke-width="22" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>'+ticks.join('')+
+  '<text x="260" y="268" text-anchor="middle" class="pn-speed" id="pn-v-speed">0</text><text x="260" y="304" text-anchor="middle" class="pn-unit">km/h</text><text x="260" y="352" text-anchor="middle" class="pn-rpmv"><tspan id="pn-v-rpm">0</tspan> <tspan class="pn-unit2">rpm</tspan></text></svg></div>'+
+  '<div class="pn-col r">'+pnBar('load','Carga do motor','%')+pnBar('throttle','Acelerador','%')+pnStat('volt','Tensão','V')+pnBar('fuellevel','Combustível','%')+'</div>'+
+  '<div class="pn-strip">'+pnStat('ltft1','Correção longa','%')+pnStat('stft1','Correção curta','%')+pnStat('kml','Consumo agora','km/L')+pnStat('map','Pressão coletor','kPa')+'</div>';
+}
+function pnScrEco(){
+ return '<div class="pn-eco"><div class="pn-ecomain"><span>Consumo agora</span><b id="pn-v-kml2">—</b><small>km/L</small><div class="pn-bt wide"><i id="pn-b-kml2"></i></div></div>'+
+  '<div class="pn-ecogrid">'+pnStat('avg','Média da viagem','km/L')+pnStat('tkm','Distância','km')+pnStat('ttime','Tempo','')+pnStat('tl','Combustível usado','L')+pnStat('range','Autonomia estimada','km')+pnStat('lph','Vazão','L/h')+'</div>'+
+  '<div class="pn-ecobtn"><button class="pn-btn" data-act="pn-trip-reset">Zerar viagem</button><small>Consumo estimado pelo fluxo de ar; pode variar do real.</small></div></div>';
+}
+function pnMechKeys(){const pr=['rpm','speed','coolant','oiltemp','iat','load','throttle','map','maf','stft1','ltft1','volt','fuellevel','timing','baro','fuelrate'];return pr.filter(pnSup).slice(0,12)}
+function pnScrMech(){
+ const ks=pnMechKeys();
+ return '<div class="pn-mech">'+ks.map(k=>{const d=OB_BY_KEY[k];return '<div class="pn-tile" id="pn-t-'+k+'"><span>'+esc(d[2])+'</span><b><i id="pn-v-'+k+'">—</i> <small>'+esc(d[3])+'</small></b><div class="pn-sp" id="pn-s-'+k+'"></div></div>'}).join('')+'</div>';
+}
+function pnBuild(){
+ const dtc=OBX.ready?OBX.ready.count:0;
+ const scr=({sport:pnScrSport,eco:pnScrEco,mech:pnScrMech})[PN.scr]();
+ return '<div class="pn-stage" id="pn-stage"><div class="pn-top"><button class="pn-chip" id="pn-mil" data-act="pn-dtc"></button>'+
+  '<div class="pn-tabs">'+[['sport','Esportivo'],['eco','Econômico'],['mech','Mecânico']].map(x=>'<button data-act="pn-scr" data-v="'+x[0]+'" aria-selected="'+(PN.scr===x[0])+'">'+x[1]+'</button>').join('')+'</div>'+
+  '<div class="pn-right">'+(OBX.kind==='sim'?'<button class="pn-btn sm" data-act="pn-simfail">Simular falha</button>':'')+'<span id="pn-clock">--:--</span><span class="pn-led" id="pn-led"></span><button class="pn-ib" data-act="pn-snd" aria-label="Som dos alertas" id="pn-snd">'+(PN.sound?'♪':'✕♪')+'</button><button class="pn-ib" data-act="pn-color" aria-label="Cor do painel"><span style="width:18px;height:18px;border-radius:50%;background:var(--pa);display:block"></span></button><button class="pn-ib" data-act="pn-close" aria-label="Fechar painel">'+ic('x')+'</button></div></div>'+
+  '<div class="pn-body">'+scr+'</div><div class="pn-alert" id="pn-alert" hidden></div></div>';
+}
+/* ---- abrir / fechar ---- */
+async function pnOpenFlow(){
+ if(!OBX.connected){await obConnect('sim');if(!OBX.connected)return}
+ pnOpen();
+}
+function pnOpen(){
+ if(PN.open)return;
+ const diesel=/diesel/i.test(V().fuel||'');PN.max=diesel?5000:8000;PN.red=diesel?4200:6500;
+ PN.open=true;OBX.panel=true;PN.cur={};PN.buf=[];PN.last={};PN.alertKey='';
+ PN.trip.last=Date.now();
+ const el=document.createElement('div');el.id='pn';el.className='pn';el.dataset.c=PN.color;el.innerHTML=pnBuild();document.body.appendChild(el);document.body.classList.add('lock');
+ pnFit();window.addEventListener('resize',pnFit);
+ pnEnv(true);
+ if(!OBX.live)obStartLive();
+ PN.timers=[setInterval(pnTick,100),setInterval(pnSample,500),setInterval(pnWatchTick,40000)];
+ pnMil();
+ (async()=>{try{const r=await obReadReady();PN.base=r?r.count:0;PN.known=r&&r.count?await obReadDtcQuiet():[];pnMil()}catch(e){PN.base=0;PN.known=[]}})();
+ document.addEventListener('keydown',pnKey);
+}
+function pnKey(e){if(e.key==='Escape')pnClose()}
+function pnClose(){
+ if(!PN.open)return;PN.open=false;OBX.panel=false;PN.timers.forEach(clearInterval);PN.timers=[];
+ window.removeEventListener('resize',pnFit);document.removeEventListener('keydown',pnKey);
+ const el=$('#pn');if(el)el.remove();document.body.classList.remove('lock');pnEnv(false);render();
+}
+function pnEnv(on){
+ try{const b=obNativeBridge();if(b&&b.setImmersive)b.setImmersive({on:on})}catch(e){}
+ try{if(on){const r=document.documentElement;if(r.requestFullscreen&&!document.fullscreenElement)r.requestFullscreen().catch(()=>{});if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{});if(navigator.wakeLock&&navigator.wakeLock.request)navigator.wakeLock.request('screen').then(w=>{PN.wake=w}).catch(()=>{})}
+  else{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();if(PN.wake){PN.wake.release().catch(()=>{});PN.wake=null}}}catch(e){}
+}
+function pnFit(){
+ const el=$('#pn-stage');if(!el)return;const w=innerWidth,h=innerHeight,portrait=h>w;
+ const s=portrait?Math.min(h/PN_W,w/PN_H):Math.min(w/PN_W,h/PN_H);
+ el.style.transform='translate(-50%,-50%)'+(portrait?' rotate(90deg)':'')+' scale('+s+')';
+}
+function pnSetScr(v){PN.scr=v;const el=$('#pn');if(!el)return;const body=el.querySelector('.pn-body');body.innerHTML=({sport:pnScrSport,eco:pnScrEco,mech:pnScrMech})[v]();el.querySelectorAll('.pn-tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.v===v)));PN.cur={};pnTick(true)}
+/* ---- atualização dos mostradores ---- */
+const pnSet=(id,txt)=>{const e=document.getElementById(id);if(e&&e.textContent!==txt)e.textContent=txt};
+function pnLevel(k,v){if(v==null)return '';if(k==='coolant')return v>108?'bad':v>102?'warn':'';if(k==='oiltemp')return v>140?'bad':v>125?'warn':'';if(k==='volt')return(OBX.vals.rpm>400&&(v<12.5||v>15))?'warn':'';if(k==='ltft1'||k==='stft1')return Math.abs(v)>15?'bad':Math.abs(v)>10?'warn':'';if(k==='rpm')return v>=PN.red?'bad':'';return ''}
+function pnTick(force){
+ if(!PN.open)return;const V0=OBX.vals,now=Date.now();
+ /* viagem */
+ const dt=(now-PN.trip.last)/1000;PN.trip.last=now;
+ if(V0.speed!=null&&dt>0&&dt<3){PN.trip.km+=V0.speed*dt/3600;PN.trip.s+=dt;const lph=pnLph();if(lph!=null)PN.trip.l+=lph*dt/3600}
+ const lph=pnLph(),kml=(lph!=null&&lph>0.2&&V0.speed>3)?V0.speed/lph:null;
+ const T=Object.assign({},V0,{kml:kml});
+ /* suaviza */
+ const sm=(k,a)=>{const t=T[k];if(t==null){PN.cur[k]=null;return null}const c=PN.cur[k];PN.cur[k]=(c==null||force)?t:c+(t-c)*a;return PN.cur[k]};
+ const rpm=sm('rpm',.3),spd=sm('speed',.35);
+ const arc=(id,v,min,max)=>{const f=v==null?0:Math.max(0,Math.min(1,(v-min)/(max-min)))*100;for(const n of ['pn-g-'+id,'pn-g-'+id+'g']){const e=document.getElementById(n);if(e)e.setAttribute('stroke-dasharray',f.toFixed(1)+' 100')}};
+ const lv=(id,k)=>{const e=document.getElementById('pn-t-'+id);if(e){const c=pnLevel(k,T[k]);if(e.dataset.lv!==c){e.dataset.lv=c}}};
+ if(PN.scr==='sport'){
+  arc('rpm',rpm,0,PN.max);pnSet('pn-v-rpm',rpm==null?'—':String(Math.round(rpm/10)*10).replace(/\B(?=(\d{3})+(?!\d))/g,'.'));pnSet('pn-v-speed',spd==null?'—':String(Math.round(spd)));
+  const g=document.getElementById('pn-g-rpm');if(g)g.classList.toggle('hot',rpm!=null&&rpm>=PN.red);
+  for(const id of ['coolant','oiltemp','iat']){const e=document.getElementById('pn-t-'+id);if(!e)continue;const v=sm(id,.15);arc(id,v,+e.dataset.min,+e.dataset.max);pnSet('pn-v-'+id,v==null?'—':String(Math.round(v)));lv(id,id)}
+  for(const [id,k,mx] of [['load','load',100],['throttle','throttle',100],['fuellevel','fuellevel',100]]){const v=sm(k,.3),b=document.getElementById('pn-b-'+id);if(b)b.style.width=(v==null?0:Math.max(0,Math.min(100,v)))+'%';pnSet('pn-v-'+id,v==null?'—':String(Math.round(v)))}
+  pnSet('pn-v-volt',T.volt==null?(OBX.voltAT!=null?obFmt('volt',OBX.voltAT):'—'):obFmt('volt',T.volt));lv('volt','volt');
+  pnSet('pn-v-ltft1',T.ltft1==null?'—':obFmt('ltft1',T.ltft1));lv('ltft1','ltft1');pnSet('pn-v-stft1',T.stft1==null?'—':obFmt('stft1',T.stft1));lv('stft1','stft1');
+  pnSet('pn-v-kml',kml==null?'—':String(Math.round(Math.min(99,kml)*10)/10).replace('.',','));pnSet('pn-v-map',T.map==null?'—':String(Math.round(T.map)));
+ }else if(PN.scr==='eco'){
+  pnSet('pn-v-kml2',kml==null?'—':String(Math.round(Math.min(99,kml)*10)/10).replace('.',','));const b=document.getElementById('pn-b-kml2');if(b)b.style.width=(kml==null?0:Math.min(100,kml/20*100))+'%';
+  const avg=PN.trip.l>0.01?PN.trip.km/PN.trip.l:null;pnSet('pn-v-avg',avg==null?'—':String(Math.round(avg*10)/10).replace('.',','));
+  pnSet('pn-v-tkm',String(Math.round(PN.trip.km*10)/10).replace('.',','));const mm=Math.floor(PN.trip.s/60);pnSet('pn-v-ttime',Math.floor(mm/60)+':'+String(mm%60).padStart(2,'0'));
+  pnSet('pn-v-tl',String(Math.round(PN.trip.l*100)/100).replace('.',','));pnSet('pn-v-lph',lph==null?'—':String(Math.round(lph*10)/10).replace('.',','));
+  const cap=parseFloat(String(V().tank||'').replace(',','.')),lvl=V0.fuellevel;pnSet('pn-v-range',(avg&&cap&&lvl!=null)?String(Math.round(avg*cap*lvl/100)):'—');
+ }else{
+  for(const k of pnMechKeys()){pnSet('pn-v-'+k,obFmt(k,V0[k]));const e=document.getElementById('pn-t-'+k);if(e){const c=pnLevel(k,V0[k]);if(e.dataset.lv!==c)e.dataset.lv=c}}
+ }
+ const led=document.getElementById('pn-led');if(led)led.className='pn-led'+(OBX.connected?' on':'');
+ const ck=new Date();pnSet('pn-clock',String(ck.getHours()).padStart(2,'0')+':'+String(ck.getMinutes()).padStart(2,'0'));
+ pnAlerts();
+}
+let pnSpT=0;
+function pnSample(){
+ if(!PN.open)return;
+ const row={s:Date.now()/1000,v:{}};for(const p of OB_PIDS){const x=OBX.vals[p[1]];if(x!=null&&Number.isFinite(x))row.v[p[1]]=Math.round(x*100)/100}
+ PN.buf.push(row);if(PN.buf.length>64)PN.buf.shift();
+ if(PN.scr==='mech'){for(const k of pnMechKeys()){const e=document.getElementById('pn-s-'+k);if(e)e.innerHTML=obSpark(k)}}
+}
+/* ---- falhas e alertas ---- */
+function pnMil(){
+ const b=document.getElementById('pn-mil');if(!b)return;const r=OBX.ready,n=OBX.dtc?OBX.dtc.stored.length:(r?r.count:0),mil=r&&r.mil;
+ b.className='pn-chip'+(n>0||mil?' warn':' ok');
+ b.innerHTML=ic(n>0||mil?'alert':'check')+'<span>'+(n>0?n+(n===1?' falha':' falhas'):mil?'Luz de injeção':'Sem falhas')+'</span>';
+}
+function pnBeep(){if(!PN.sound)return;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const c=PN.ac||(PN.ac=new A()),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.18);setTimeout(()=>{try{const o2=c.createOscillator(),g2=c.createGain();o2.frequency.value=1175;g2.gain.value=.08;o2.connect(g2);g2.connect(c.destination);o2.start();o2.stop(c.currentTime+.2)}catch(e){}},230)}catch(e){}}
+function pnAlert(a){
+ const el=document.getElementById('pn-alert');if(!el)return;PN.alertKey=a.kind+(a.code||'');
+ let h='<div class="pn-ai">'+ic('alert')+'</div><div class="pn-at"><b>'+esc(a.title)+'</b><span>'+esc(a.body||'')+'</span></div><div class="pn-aa"><button class="pn-btn" data-act="pn-goto" data-v="'+(a.tab||'dtc')+'">'+(a.tab==='rep'?'Ver diagnóstico':'Ver falhas')+'</button><button class="pn-btn ghost" data-act="pn-dismiss">Dispensar</button></div>';
+ el.className='pn-alert l'+(a.lvl||2);el.innerHTML=h;el.hidden=false;pnBeep();
+}
+function pnAlerts(){
+ const V0=OBX.vals,now=Date.now(),cd=300000,fire=(key,fn)=>{if(!PN.last[key]||now-PN.last[key]>cd){PN.last[key]=now;fn()}};
+ if(V0.coolant>105)fire('hot',()=>{pnAlert({kind:'hot',title:'Temperatura do motor alta',body:Math.round(V0.coolant)+' °C — pare com segurança se continuar subindo.',lvl:3,tab:'rep'});pnBlackbox('Temperatura alta ('+Math.round(V0.coolant)+' °C)')});
+ if(V0.volt!=null&&V0.rpm>600&&V0.volt<12.2)fire('volt',()=>{pnAlert({kind:'volt',title:'Tensão baixa com o motor ligado',body:obFmt('volt',V0.volt)+' V — verifique alternador e bateria.',lvl:2,tab:'rep'});pnBlackbox('Tensão baixa ('+obFmt('volt',V0.volt)+' V)')});
+}
+async function obReadDtcQuiet(){let st=[],pe=[];try{st=obParseDtc(await obCmd('03',6000),3)}catch(e){}try{pe=obParseDtc(await obCmd('07',6000),7)}catch(e){}OBX.dtc={stored:st,pending:pe,perm:(OBX.dtc&&OBX.dtc.perm)||[],at:Date.now(),mil:null};return st}
+async function pnWatchTick(){
+ if(!OBX.connected||!PN.open||PN.base==null)return;
+ try{const r=await obReadReady();if(!r)return;
+  if(r.count>PN.base){const codes=await obReadDtcQuiet(),nw=codes.filter(c=>PN.known.indexOf(c)<0);PN.base=r.count;PN.known=codes;
+   if(nw.length){const i=obDtcInfo(nw[0]);pnAlert({kind:'dtc',code:nw[0],title:'Nova falha: '+nw[0]+(nw.length>1?' (+'+(nw.length-1)+')':''),body:i.d,lvl:i.u>=3?3:2,tab:'dtc'});pnBlackbox('Nova falha '+nw.join(', '))}}
+  else if(r.count<PN.base){PN.base=r.count;try{PN.known=r.count?await obReadDtcQuiet():[]}catch(e){}}
+  pnMil();
+ }catch(e){}
+}
+/* ---- caixa-preta: guarda os últimos 30 s (+15 s depois) quando algo acontece ---- */
+function pnBlackbox(reason){
+ const key=reason.split(' ')[0]+(reason.indexOf('falha')>=0?reason:'');const now=Date.now();
+ if(PN.last['bb:'+key]&&now-PN.last['bb:'+key]<300000)return;PN.last['bb:'+key]=now;
+ const v=V(),rows=PN.buf.slice(-60);if(rows.length<3)return;
+ const t0=rows[0].s,ev={id:uid(),at:new Date().toISOString(),reason:reason,rows:rows.map(r=>({s:Math.round((r.s-t0)*10)/10,v:r.v}))};
+ v.events=(v.events||[]);v.events.unshift(ev);v.events=v.events.slice(0,12);save();
+ setTimeout(()=>{try{const add=PN.buf.filter(r=>r.s>rows[rows.length-1].s);add.forEach(r=>ev.rows.push({s:Math.round((r.s-t0)*10)/10,v:r.v}));save()}catch(e){}},15000);
+ obLog('Caixa-preta salva: '+reason);
+}
+function obEventsHtml(){
+ const ev=V().events||[];if(!ev.length)return '';
+ return '<h3 style="margin:18px 0 6px;font-size:15px">Caixa-preta (dados de quando algo aconteceu)</h3>'+ev.map(e=>'<div class="csv-find"><b>'+new Date(e.at).toLocaleString('pt-BR')+' · '+esc(e.reason)+'</b><small>'+e.rows.length+' amostras</small><div class="obd-tools" style="margin-top:6px"><button class="btn ghost sm" data-act="ob-ev-analyze" data-id="'+e.id+'">Analisar</button><button class="icon-btn flat" data-act="ob-ev-del" data-id="'+e.id+'" aria-label="Excluir">'+ic('trash')+'</button></div></div>').join('');
+}
+function pnAct(a,el){
+ switch(a){
+  case 'ob-panel':pnOpenFlow();return true;
+  case 'pn-close':pnClose();return true;
+  case 'pn-scr':pnSetScr(el.dataset.v);return true;
+  case 'pn-dismiss':{const e=$('#pn-alert');if(e)e.hidden=true;return true}
+  case 'pn-dtc':{pnGoto('dtc');return true}
+  case 'pn-goto':pnGoto(el.dataset.v);return true;
+  case 'pn-snd':PN.sound=!PN.sound;try{localStorage.setItem('meu-carro-painel-som',PN.sound?'1':'0')}catch(e){}pnSet('pn-snd',PN.sound?'♪':'✕♪');if(PN.sound)pnBeep();return true;
+  case 'pn-color':{const i=(PN_COLORS.indexOf(PN.color)+1)%PN_COLORS.length;PN.color=PN_COLORS[i];try{localStorage.setItem('meu-carro-painel-cor',PN.color)}catch(e){}const p=$('#pn');if(p)p.dataset.c=PN.color;return true}
+  case 'pn-trip-reset':PN.trip={km:0,l:0,s:0,last:Date.now()};return true;
+  case 'pn-simfail':if(OBX.simAddDtc){OBX.simAddDtc('P0301');toast('Falha simulada. O painel confere a cada 40 s.');PN.timers.push(setTimeout(pnWatchTick,1200))}return true;
+  case 'ob-ev-analyze':{const e=(V().events||[]).find(x=>x.id===el.dataset.id);if(e){OBX.lastRec={rows:e.rows.map(r=>({t:r.s,v:r.v}))};obAnalyzeRec()}return true}
+  case 'ob-ev-del':{const v=V();v.events=(v.events||[]).filter(x=>x.id!==el.dataset.id);save();render();return true}
+ }
+ return false;
+}
+function pnGoto(tab){pnClose();OBX.tab=tab;location.hash='#obd';render()}
+
+function viewObd(){return obView()+(CSV_DIAG.raw?'<section class="card" style="margin-top:16px"><div class="card-h"><h2>Análise da gravação</h2></div><div class="obd-tools"><span class="tag">'+esc(CSV_DIAG.file)+'</span><button class="btn ghost sm" data-act="csv-clear">Fechar análise</button><button class="btn ghost sm" data-act="csv-export">Exportar relatório</button></div></section>'+csvReportHtml():'')}
 async function csvLoad(file){if(!file)return;CSV_DIAG.error='';try{if(file.size>14e6)throw Error('Arquivo acima de 14 MB.');const txt=await file.text();const parsed=csvParse(txt);CSV_DIAG.raw=parsed;CSV_DIAG.file=file.name;CSV_DIAG.vehicleId=S.activeId;CSV_DIAG.selection='';CSV_DIAG.report=csvAnalyze(parsed);render();toast('CSV analisado: '+parsed.data.length+' linhas.')}catch(e){CSV_DIAG.error=e.message||'Não foi possível ler o arquivo';render()}}
 function csvExport(){if(!CSV_DIAG.raw)return;const a=CSV_DIAG.report,p=CSV_DIAG.raw;const text=['MEU CARRO — RELATÓRIO DE ANÁLISE CSV','Arquivo: '+CSV_DIAG.file,'Veículo selecionado: '+(V().nick||V().model||''),'Registros: '+p.data.length,'Formato: '+a.format,'Duração: '+(a.span==null?'não informada':a.span+' segundos'),'','PARÂMETROS',...a.metrics.map(m=>m.name+' | mín '+m.stats.min.toFixed(2)+' | média '+m.stats.avg.toFixed(2)+' | máx '+m.stats.max.toFixed(2)+' '+m.unit),'','OBSERVAÇÕES',...a.findings.map(f=>f.title+': '+f.body),'','Análise exploratória; não substitui diagnóstico profissional.'].join('\n');const blob=new Blob([text],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='diagnostico-meu-carro.txt';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 
@@ -1954,6 +2253,104 @@ function pushPreview(){
   const p=$('#push');p.innerHTML='<div class="notif"><span class="app">'+ic('oilcan')+'</span><div><b>Meu Carro <small>· agora</small></b><p>'+esc(txt)+'</p></div></div>';
   p.classList.add('show');setTimeout(()=>p.classList.remove('show'),5000);
 }
+/* ================= Notificações (app Android: agendadas no aparelho · navegador: ao abrir) ================= */
+const NT={perm:null,timer:null,ready:false};
+function ntPlugin(){try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications?C.Plugins.LocalNotifications:null}catch(e){return null}}
+function ntHM(){const m=String(S.settings.hour||'08:00').match(/^(\d{1,2}):(\d{2})$/);return m?[Math.min(23,+m[1]),Math.min(59,+m[2])]:[8,0]}
+function ntAt(d){const h=ntHM();return new Date(d.getFullYear(),d.getMonth(),d.getDate(),h[0],h[1],0,0)}
+/* monta a lista de avisos futuros (agrupados por veículo e dia) */
+function ntBuild(){
+ const st=S.settings,now=new Date(),horizon=addDays(TODAY,150),map={};
+ const push=(v,d,line,lv)=>{if(!d||d<=TODAY||d>horizon)return;const at=ntAt(d);if(at<=now)return;const key=v.id+'|'+iso(d);const e=map[key]||(map[key]={v:v,at:at,lines:[],lvl:0});if(!e.lines.some(x=>x.t===line))e.lines.push({t:line,lv:lv});e.lvl=Math.max(e.lvl,lv)};
+ for(const v of S.vehicles){
+  const kd=kmDayInfo(v).v;
+  for(const s of statuses(v)){
+   const n=s.it.n,det=s.remKm!=null&&s.lk>=s.lt?'faltam '+fmt(Math.max(0,s.remKm))+' km':(s.dueDate?'vence em '+fdate(s.dueDate):'');
+   if(s.level===3)[1,8,15,22].forEach(k=>push(v,addDays(TODAY,k),n+': prazo vencido',3));
+   else if(s.level===2)[1,4,8].forEach(k=>push(v,addDays(TODAY,k),n+': urgente'+(det?' ('+det+')':''),2));
+   else if(s.level===1)push(v,addDays(TODAY,1),n+': '+det,1);
+   const cross=(thK,thD)=>{let c=null;if(s.remKm!=null&&s.remKm>thK)c=addDays(TODAY,Math.ceil((s.remKm-thK)/kd));if(s.dueDate&&s.remDays>thD){const t=addDays(s.dueDate,-thD);if(!c||t<c)c=t}return c};
+   const prev=s.est?' · previsto para '+fdate(s.est):'';
+   if(s.level<1)push(v,cross(st.alertKm,st.alertDays),n+': se aproximando'+prev,1);
+   if(s.level<2)push(v,cross(st.urgentKm,st.urgentDays),n+': urgente'+prev,2);
+   if(s.est&&s.est>TODAY)push(v,s.est,n+': previsto para hoje',2);
+  }
+  for(const d of docStatuses(v)){
+   if(d.days<0)[1,8,15].forEach(k=>push(v,addDays(TODAY,k),d.n+' vencido em '+fdate(d.dt),3));
+   else{push(v,addDays(d.dt,-st.alertDays),d.n+' vence em '+fdate(d.dt),1);push(v,addDays(d.dt,-st.urgentDays),d.n+' vence em '+fdate(d.dt),2);push(v,d.dt,d.n+' vence hoje',3)}
+  }
+  const lr=lastReading(v),base=lr?parse(lr.date):TODAY;
+  [14,28,42].forEach(k=>{let d=addDays(base,k);if(d<=TODAY)d=addDays(TODAY,1);push(v,d,'Atualize a quilometragem do carro',1)});
+ }
+ return Object.keys(map).map(k=>map[k]).sort((a,b)=>a.at-b.at).map(e=>{
+  const multi=S.vehicles.length>1,nick=e.v.nick||e.v.model||'Veículo',L=e.lines.map((x,i)=>({t:x.t,lv:x.lv,i:i})).sort((a,b)=>b.lv-a.lv||a.i-b.i).map(x=>x.t);
+  return {at:e.at,lvl:e.lvl,title:'Meu Carro'+(multi?' · '+nick:''),body:L.slice(0,3).join('\n')+(L.length>3?'\n+'+(L.length-3)+' outros avisos':'')};
+ });
+}
+async function ntCancelAll(LN){try{const p=await LN.getPending();if(p&&p.notifications&&p.notifications.length)await LN.cancel({notifications:p.notifications.map(n=>({id:n.id}))})}catch(e){}}
+async function ntPerm(ask){
+ const LN=ntPlugin();
+ if(LN){try{let p=await LN.checkPermissions();if(p.display==='prompt'||p.display==='prompt-with-rationale'){if(!ask){NT.perm='prompt';return NT.perm}p=await LN.requestPermissions()}NT.perm=p.display;return NT.perm}catch(e){NT.perm='denied';return NT.perm}}
+ if(typeof Notification==='undefined'){NT.perm='unsupported';return NT.perm}
+ if(Notification.permission==='default'&&ask){try{await Notification.requestPermission()}catch(e){}}
+ NT.perm=Notification.permission;return NT.perm;
+}
+async function ntSync(){
+ const LN=ntPlugin();if(!LN)return;
+ try{
+  if(!S.settings.push){await ntCancelAll(LN);return}
+  if(await ntPerm(false)!=='granted')return;
+  try{await LN.createChannel({id:'manutencao',name:'Alertas de manutenção',description:'Trocas, revisões e vencimentos do seu carro',importance:4,visibility:1,vibration:true})}catch(e){}
+  await ntCancelAll(LN);
+  const evs=ntBuild().slice(0,150),list=evs.map((e,i)=>({id:i+1,title:e.title,body:e.body,largeBody:e.body,channelId:'manutencao',smallIcon:'ic_stat_meucarro',iconColor:'#F2C230',schedule:{at:e.at},extra:{route:'painel'}}));
+  if(S.settings.weekly){const h=ntHM();list.push({id:900,title:'Meu Carro · resumo da semana',body:'Veja como estão as manutenções e os vencimentos do seu carro.',channelId:'manutencao',smallIcon:'ic_stat_meucarro',iconColor:'#F2C230',schedule:{on:{weekday:2,hour:h[0],minute:h[1]}},extra:{route:'painel'}})}
+  if(list.length)await LN.schedule({notifications:list});
+  NT.count=list.length;
+ }catch(e){try{console.warn('notificações:',e)}catch(_){}}
+}
+function ntKick(){clearTimeout(NT.timer);NT.timer=setTimeout(()=>{ntSync();ntWebCheck()},1500)}
+/* navegador/PWA: não há agendamento com o app fechado; avisa uma vez por dia ao abrir */
+async function ntWebCheck(){
+ if(ntPlugin()||!S.settings.push||typeof Notification==='undefined'||Notification.permission!=='granted')return;
+ try{const day=iso(new Date());if(localStorage.getItem('meu-carro-nt-dia')===day)return;
+  const v=V(),top=statuses(v).filter(s=>s.level>=1).slice(0,3),dc=docStatuses(v).filter(d=>d.level>=1).slice(0,2);
+  const lines=top.map(s=>s.it.n+': '+(s.level===3?'prazo vencido':s.remKm!=null&&s.lk>=s.lt?'faltam '+fmt(Math.max(0,s.remKm))+' km':'vence em '+fdate(s.dueDate))).concat(dc.map(d=>d.n+(d.days<0?' vencido':' vence em '+fdate(d.dt))));
+  if(!lines.length)return;localStorage.setItem('meu-carro-nt-dia',day);
+  const opts={body:lines.join('\n'),icon:'icons/icon-192.png',badge:'icons/icon-192.png',tag:'meucarro-diario'};
+  const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();
+  if(reg&&reg.showNotification)reg.showNotification('Meu Carro · '+(v.nick||v.model),opts);else new Notification('Meu Carro · '+(v.nick||v.model),opts);
+ }catch(e){}
+}
+async function ntEnable(){
+ const p=await ntPerm(true);
+ if(p==='granted'){toast(ntPlugin()?'Notificações ativadas.':'Notificações ativadas neste navegador.');ntKick()}
+ else if(p==='unsupported')toast('Este navegador não suporta notificações.');
+ else toast('Permissão negada. Libere nas configurações do aparelho.');
+ render();
+}
+async function ntTest(){
+ const v=V(),top=statuses(v)[0],txt=top?(top.it.n+': '+(top.level===3?'prazo vencido.':top.remKm!=null?'faltam '+fmt(Math.max(0,top.remKm))+' km.':'vence em '+fdate(top.dueDate)+'.')):'Tudo em dia.';
+ const LN=ntPlugin(),p=await ntPerm(true);
+ if(p!=='granted'){pushPreview();toast(p==='denied'?'Permissão negada nas configurações do aparelho.':'Notificações indisponíveis aqui; mostrando a prévia.');return}
+ try{
+  if(LN){try{await LN.createChannel({id:'manutencao',name:'Alertas de manutenção',description:'Trocas, revisões e vencimentos do seu carro',importance:4,visibility:1,vibration:true})}catch(e){}
+   await LN.schedule({notifications:[{id:999,title:'Meu Carro · teste',body:txt,channelId:'manutencao',smallIcon:'ic_stat_meucarro',iconColor:'#F2C230',schedule:{at:new Date(Date.now()+2000)},extra:{route:'painel'}}]});toast('Notificação de teste em instantes.')}
+  else{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();const o={body:txt,icon:'icons/icon-192.png',tag:'meucarro-teste'};if(reg&&reg.showNotification)reg.showNotification('Meu Carro · teste',o);else new Notification('Meu Carro · teste',o)}
+ }catch(e){pushPreview()}
+}
+function ntStatusHtml(){
+ const LN=ntPlugin(),p=NT.perm;
+ const txt=LN?'Os avisos são agendados no aparelho e chegam mesmo com o app fechado.':'No navegador, o aviso aparece quando você abre o app. Para receber com o app fechado, instale o app Android.';
+ const pill=p==='granted'?'<span class="pill l0">Permitidas</span>':p==='denied'?'<span class="pill l3">Bloqueadas</span>':p==='unsupported'?'<span class="pill l1">Indisponível</span>':'<span class="pill l1">Pendente</span>';
+ return '<p class="muted" style="margin:6px 0">'+txt+' '+pill+'</p>';
+}
+function ntInit(){
+ ntPerm(false).then(()=>{ntKick()});
+ const LN=ntPlugin();
+ if(LN&&LN.addListener){try{LN.addListener('localNotificationActionPerformed',e=>{const r=e&&e.notification&&e.notification.extra&&e.notification.extra.route;location.hash='#'+(r||'painel')})}catch(e){}}
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(new Date().toDateString()!==TODAY.toDateString()){location.reload();return}ntKick()}});
+}
+
 const sheetHead=(t)=>'<div class="sheet-h"><h2>'+t+'</h2><button class="icon-btn flat" data-act="close" aria-label="Fechar">'+ic('x')+'</button></div>';
 
 /* ---- Registrar manutenção ---- */
@@ -2057,10 +2454,14 @@ function saveVeh(f){
 
 /* ---- Dados ---- */
 function exportModal(){
-  openModal(sheetHead('Exportar dados')+'<p class="muted" style="margin-bottom:10px">Copie o texto abaixo e guarde onde quiser. Para restaurar, use Importar.</p><textarea id="ex-ta" class="ta-export" readonly>'+esc(JSON.stringify(S,null,1))+'</textarea><div class="actions"><button class="btn" data-act="copy-json">'+ic('doc')+'Copiar</button><button class="btn ghost" data-act="close">Fechar</button></div>');
+  openModal(sheetHead('Exportar dados')+'<p class="muted" style="margin-bottom:10px">Copie o texto abaixo e guarde onde quiser. Para restaurar, use Importar.</p><textarea id="ex-ta" class="ta-export" readonly>'+esc(JSON.stringify(S,null,1))+'</textarea><div class="actions"><button class="btn" data-act="dl-json">'+ic('doc')+'Baixar arquivo</button><button class="btn ghost" data-act="copy-json">Copiar</button><button class="btn ghost" data-act="close">Fechar</button></div>');
 }
 function importModal(){
-  openModal(sheetHead('Importar dados')+'<p class="muted" style="margin-bottom:10px">Cole o JSON exportado antes. Isso substitui os dados atuais.</p><textarea id="im-ta" class="ta-export" placeholder="{ &quot;vehicles&quot;: [ ... ] }"></textarea><p class="err" id="im-err" role="alert"></p><div class="actions"><button class="btn" data-act="import-go">Importar</button><button class="btn ghost" data-act="close">Cancelar</button></div>');
+  openModal(sheetHead('Importar dados')+'<p class="muted" style="margin-bottom:10px">Escolha o arquivo exportado ou cole o JSON. Isso substitui os dados atuais.</p><input type="file" id="im-file" accept=".json,application/json,text/plain" style="margin-bottom:10px;max-width:100%"><textarea id="im-ta" class="ta-export" placeholder="{ &quot;vehicles&quot;: [ ... ] }"></textarea><p class="err" id="im-err" role="alert"></p><div class="actions"><button class="btn" data-act="import-go">Importar</button><button class="btn ghost" data-act="close">Cancelar</button></div>');
+}
+function stoStatus(){
+  const le=S.meta&&S.meta.lastExport,old=!le||(Date.now()-le>30*864e5);
+  return '<div class="csv-table" style="margin:10px 0"><table><tbody><tr><td>Armazenamento protegido</td><td>'+(STO.persisted===true?'<span class="pill l0">Sim</span>':STO.persisted===false?'<span class="pill l1">Não garantido</span>':'—')+'</td></tr><tr><td>Cópia interna</td><td>'+(STO.idb?'<span class="pill l0">Ativa</span>':STO.idb===false?'<span class="pill l2">Indisponível</span>':'—')+'</td></tr><tr><td>Último backup exportado</td><td>'+(le?new Date(le).toLocaleDateString('pt-BR'):'nunca')+(old?' <span class="pill l1">fazer backup</span>':'')+'</td></tr></tbody></table></div>';
 }
 function resetAsk(){
   openModal(sheetHead('Restaurar exemplo')+'<p>Os dados de exemplo voltam ao estado original. Tudo que você cadastrou neste navegador será apagado.</p><div class="actions"><button class="btn danger" data-act="reset-go">Restaurar</button><button class="btn ghost" data-act="close">Cancelar</button></div>');
@@ -2071,7 +2472,7 @@ document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
   if(['INPUT','SELECT','TEXTAREA'].includes(el.tagName))return;
   const a=el.dataset.act,v=V();
-  if(a.indexOf('ob-')===0){obAct(a,el);return}
+  if(a.indexOf('ob-')===0||a.indexOf('pn-')===0){obAct(a,el);return}
   switch(a){
     case 'ov':if(e.target===el)closeModal();break;
     case 'close':closeModal();break;
@@ -2097,12 +2498,13 @@ document.addEventListener('click',e=>{
     case 'veh-del-no':UI.delVeh=null;render();break;
     case 'veh-del-yes':S.vehicles=S.vehicles.filter(x=>x.id!==el.dataset.id);if(!S.vehicles.some(x=>x.id===S.activeId))S.activeId=S.vehicles[0].id;UI.delVeh=null;save();render();toast('Veículo excluído');break;
     case 'bell':if(location.hash!=='#painel'&&location.hash!=='')location.hash='#painel';setTimeout(()=>{const t=$('#alertas');if(t)t.scrollIntoView({behavior:'smooth',block:'start'})},60);break;
-    case 'push':pushPreview();break;
+    case 'push':ntTest();break;
     case 'csv-clear':CSV_DIAG.raw=null;CSV_DIAG.report=null;CSV_DIAG.error='';render();break;
     case 'csv-export':csvExport();break;
     case 'export':exportModal();break;
     case 'import':importModal();break;
-    case 'copy-json':{const ta=$('#ex-ta');ta.select();
+    case 'dl-json':{try{const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='meu-carro-backup-'+new Date().toLocaleDateString('sv-SE')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);S.meta=Object.assign({},S.meta,{lastExport:Date.now()});save();toast('Backup baixado')}catch(e){toast('Não foi possível baixar; use Copiar')}break}
+    case 'copy-json':{S.meta=Object.assign({},S.meta,{lastExport:Date.now()});save();const ta=$('#ex-ta');ta.select();
       (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(ta.value):Promise.reject()).then(()=>toast('Copiado'),()=>toast('Selecione o texto e copie manualmente'));}break;
     case 'import-go':{const err=$('#im-err');try{const o=JSON.parse($('#im-ta').value);if(!o||!Array.isArray(o.vehicles)||!o.vehicles.length||!o.settings)throw 0;S=o;if(!S.vehicles.some(x=>x.id===S.activeId))S.activeId=S.vehicles[0].id;save();closeModal();render();toast('Dados importados')}catch(x){err.textContent='Não foi possível ler esse texto. Cole o JSON completo exportado pelo app.'}}break;
     case 'sug-apply':applySug(false);break;
@@ -2129,6 +2531,7 @@ document.addEventListener('change',e=>{
   if(t.id==='ob-scn'){OBX.scn=t.value;return}
   if(t.id==='ob-hm'){OBX.hm=t.value;render();return}
   if(t.dataset&&t.dataset.obmod){const vv=V();vv.modLabels=vv.modLabels||{};vv.modLabels[t.dataset.obmod]=t.value.trim();save();return}
+  if(t.id==='im-file'){const f=t.files&&t.files[0];if(f)f.text().then(x=>{const ta=$('#im-ta');if(ta)ta.value=x})}
   if(t.id==='appearance-mode'){setAppAppearance(t.value);render();toast('Aparência salva');return}
   if(t.id==='csv-file'){csvLoad(t.files&&t.files[0]);return}
   if(t.id==='csv-metric'){CSV_DIAG.selection=t.value;render();return}
@@ -2145,6 +2548,7 @@ document.addEventListener('change',e=>{
     if(st.urgentDays>st.alertDays)st.alertDays=st.urgentDays;
     if(k==='kmDayManual'&&!(st.kmDayManual>=1))st.kmDayManual=1;
     save();render();toast('Ajuste salvo');
+    if(k==='push'&&st.push)ntEnable();
   }
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal-root').firstChild)closeModal()});
@@ -2314,7 +2718,7 @@ function pkChange(t){
 try{fetch('dados/oleos.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{if(j&&oleosInit(j))render()}).catch(()=>{})}catch(e){}
 
 
-onRoute(false);
+onRoute(false);ntInit();
 })();
 </script>
 <script>if("serviceWorker"in navigator){addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){})})}</script>
