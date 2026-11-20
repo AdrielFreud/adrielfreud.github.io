@@ -7,13 +7,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#171B21">
 <meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Meu Carro">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <title>Meu Carro</title>
@@ -241,6 +241,10 @@ a{color:inherit}
 .brand{display:none}
 @media (min-width:960px){.brand{display:flex}}
 
+/* Ajustes: rolagem unica da pagina, sem barra interna visivel. */
+.set-grid,.set-grid>.stack-grid{min-width:0;max-height:none;overflow:visible}
+.set-grid .card{min-width:0}
+@media(max-width:600px){.set-grid{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr)}.set-grid .srow{min-width:0}.set-grid .srow .t{min-width:0;flex:1}.set-grid .srow input[type="number"]{min-width:0;max-width:38%;width:110px}}
 /* ---------- Componentes ---------- */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
 .card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
@@ -483,10 +487,49 @@ label.chk small{display:block;color:var(--ink2);font-size:12px}
 .sug-vers{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .sug-disc{margin-top:14px;font-size:13px;color:var(--ink2)}
 @media (max-width:420px){.sug-dl div{grid-template-columns:1fr;gap:2px}}
+
+/* KM em Dia — abertura personalizada, independente do tema */
+#km-startup{position:fixed;inset:0;z-index:2147483647;background:#171B21;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;opacity:1;transition:opacity .4s ease;box-sizing:border-box}
+#km-startup.km-hide{opacity:0;pointer-events:none}
+#km-startup .km-startup-inner{display:flex;flex-direction:column;align-items:center;gap:17px;max-width:95vw}
+#km-startup svg{width:76px;height:76px;display:block}
+#km-startup h1{font:600 clamp(28px,7vw,38px)/1.2 system-ui,sans-serif;color:#fff;margin:0}
+#km-startup p{font:400 clamp(13px,3.5vw,16px)/1.5 system-ui,sans-serif;color:#ffcc00;margin:0}
+@media(prefers-reduced-motion:reduce){#km-startup{transition:none}}
+.km-alert-center{max-height:min(70vh,650px);overflow-y:auto;padding:4px 2px 14px}.km-alert-center h3{margin:14px 0 10px}.km-alert-row,.km-alert-history{padding:13px;margin:9px 0;border:1px solid var(--border, #7774);border-radius:12px}.km-alert-row .btn{margin-top:10px}.km-alert-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}.km-alert-history small{display:block;margin-top:5px;opacity:.7}
 </style>
 
 </head>
 <body>
+<!-- Abertura visual do KM em Dia; não altera a splash nativa do Android. -->
+<div id="km-startup" role="status" aria-label="Abrindo KM em Dia">
+  <div class="km-startup-inner">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M19 68 A35 35 0 1 1 81 68" fill="none" stroke="#ffcc00" stroke-width="7" stroke-linecap="round"/>
+      <path d="M47 59 L70 32 L57 65 Z" fill="#ffcc00"/>
+      <circle cx="50" cy="62" r="7" fill="#ffcc00"/>
+    </svg>
+    <h1>KM em Dia</h1>
+    <p>Seu carro, sua manutenção em dia.</p>
+  </div>
+</div>
+<script>
+(function(){
+  var started=Date.now(), dismissed=false;
+  function dismiss(){
+    if(dismissed)return; dismissed=true;
+    var el=document.getElementById('km-startup');
+    if(!el)return;
+    el.classList.add('km-hide');
+    setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},450);
+  }
+  function ready(){setTimeout(dismiss,Math.max(0,1400-(Date.now()-started)))}
+  if(document.readyState==='complete')ready();
+  else window.addEventListener('load',ready,{once:true});
+  setTimeout(dismiss,5000); // evita bloquear a interface caso algum recurso externo não carregue
+})();
+</script>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c3.5 4.2 6 7.2 6 10.2A6 6 0 0 1 6 13.2C6 10.2 8.5 7.2 12 3z"/></symbol>
   <symbol id="i-filter" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="14" rx="2"/><path d="M8 6V3.5h8V6M6 11h12M6 16h12"/></symbol>
@@ -670,6 +713,47 @@ function readings(v){
   return a.sort((x,y)=>x.date<y.date?-1:x.date>y.date?1:x.km-y.km);
 }
 function curKm(v){return Math.max(v.initialKm||0,...readings(v).map(r=>r.km))}
+/* GPS: registro opt-in somente enquanto a aplicação está aberta.
+   A leitura manual redefine a âncora; não se soma distância histórica duas vezes. */
+const GPSKM={watch:null,vehicleId:null,last:null,meters:0,lastSave:0,accuracy:null,error:''};
+function gpsStatus(){return GPSKM.watch===null?'Parado':GPSKM.error?'GPS: '+GPSKM.error:'Registrando viagem';}
+/* Só conta deslocamento de veículo: com o scanner ligado usa a velocidade real do carro; sem ele, exige >= 15 km/h (descarta caminhada, corrida e bicicleta lenta). */
+function gpsMinSpeed(){try{if(OBX.connected&&OBX.live&&OBX.vals.speed!=null)return OBX.vals.speed>=5?0.5:1e9}catch(e){}return 4.17}
+function gpsStop(){if(GPSKM.watch!==null){navigator.geolocation.clearWatch(GPSKM.watch);GPSKM.watch=null;}GPSKM.last=null;GPSKM.vehicleId=null;GPSKM.meters=0;GPSKM.error='';}
+function gpsStart(){
+ if(GPSKM.watch!==null)return;
+ if(!navigator.geolocation){toast('GPS indisponível neste dispositivo.');return;}
+ const v=V();GPSKM.vehicleId=v.id;GPSKM.last=null;GPSKM.meters=0;GPSKM.error='';
+ GPSKM.watch=navigator.geolocation.watchPosition(pos=>{
+   if(GPSKM.vehicleId!==V().id){gpsStop();return;}
+   const c=pos.coords,t=pos.timestamp||Date.now();GPSKM.accuracy=c.accuracy;
+   if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||c.accuracy>35)return;
+   const next={lat:c.latitude,lon:c.longitude,t,acc:c.accuracy};
+   if(GPSKM.last){
+     const prev=GPSKM.last,dt=(t-prev.t)/1000;
+     if(dt<=0||dt>45){GPSKM.last=next;return;}
+     const rad=Math.PI/180,dlat=(next.lat-prev.lat)*rad,dlon=(next.lon-prev.lon)*rad;
+     const a=Math.sin(dlat/2)**2+Math.cos(prev.lat*rad)*Math.cos(next.lat*rad)*Math.sin(dlon/2)**2;
+     const dist=12742000*Math.asin(Math.min(1,Math.sqrt(a)));
+     const speed=dist/dt;
+     if(dist>=Math.max(8,Math.min(25,(prev.acc+next.acc)*.4))&&speed>=gpsMinSpeed()&&speed<=55){
+       GPSKM.meters+=dist;
+       if(GPSKM.meters>=100&&t-GPSKM.lastSave>5000){
+         const km=GPSKM.meters/1000,base=curKm(v),date=new Date().toLocaleDateString('sv-SE');
+         v.odo=(v.odo||[]).filter(r=>r.date!==date);
+         v.odo.push({date,km:Math.round((base+km)*100)/100,source:'gps'});
+         GPSKM.meters=0;GPSKM.lastSave=t;save();maintenanceThresholdAlerts(v,base);if(location.hash==='#ajustes'||location.hash==='#painel')render();
+       }
+     }
+   }
+   GPSKM.last=next;
+ },err=>{GPSKM.error=err.code===1?'permissão negada':err.message||'sinal indisponível';if(location.hash==='#ajustes')render();},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+ render();toast('Registro GPS iniciado. Mantenha o app aberto.');
+}
+function gpsFlush(){
+ if(GPSKM.vehicleId&&GPSKM.meters>0){const v=S.vehicles.find(x=>x.id===GPSKM.vehicleId);if(v){const date=new Date().toLocaleDateString('sv-SE');const previous=curKm(v);const km=previous+GPSKM.meters/1000;v.odo=(v.odo||[]).filter(r=>r.date!==date);v.odo.push({date,km:Math.round(km*100)/100,source:'gps'});save();maintenanceThresholdAlerts(v,previous);}}
+ GPSKM.meters=0;
+}
 function lastReading(v){const r=readings(v);return r[r.length-1]}
 function kmDayInfo(v){
   const st=S.settings,man=Math.max(1,Number(st.kmDayManual)||25);
@@ -715,6 +799,55 @@ function docStatuses(v){
   }).sort((a,b)=>a.days-b.days);
 }
 function alertCount(v){return statuses(v).filter(s=>s.level>=1).length+docStatuses(v).filter(d=>d.level>=1).length}
+function maintenanceAlertText(s){
+ const due=s.dueKm!=null?'Próxima manutenção aos '+fmt(s.dueKm)+' km':'';
+ const km=s.remKm!=null?(s.remKm<0?fmt(Math.abs(s.remKm))+' km acima do prazo':s.remKm===0?'Limite de quilometragem atingido':'Faltam '+fmt(s.remKm)+' km'):'';
+ const date=s.dueDate?' · prazo: '+fdate(s.dueDate):'';
+ return [km,due].filter(Boolean).join(' · ')+date;
+}
+/* Central de alertas: usa os mesmos status e intervalos do plano de manutenção. */
+function alertCenter(){
+ const v=V(),pending=statuses(v).filter(s=>s.level>=1),history=(v.alertHistory||[]).slice().reverse().slice(0,25);
+ const labels=['Em dia','Atenção','Urgente','Vencida'];
+ const rows=pending.map(s=>'<div class="km-alert-row"><div class="km-alert-top"><b>'+esc(s.it.n)+'</b><span class="pill">'+labels[s.level]+'</span></div><div class="muted">'+esc(maintenanceAlertText(s))+'</div><div class="muted">'+esc(lastTxt(s))+'</div><button class="btn ghost sm" data-act="rec-new" data-items="'+esc(s.it.id)+'">Registrar manutenção</button></div>').join('');
+ const past=history.map(h=>'<div class="km-alert-history"><b>'+esc(h.title)+'</b><div class="muted">'+esc(h.message)+'</div><small>'+esc(h.when)+'</small></div>').join('');
+ openModal(sheetHead('Central de alertas')+'<div class="km-alert-center"><p class="muted">'+esc(v.nick||v.model)+' · '+fmt(curKm(v))+' km · avisos calculados desde a última manutenção registrada.</p><h3>Manutenções que precisam de atenção ('+pending.length+')</h3>'+(rows||'<div class="empty">Nenhuma manutenção próxima ou vencida.</div>')+'<h3 style="margin-top:18px">Histórico de avisos</h3>'+(past||'<p class="muted">Nenhum aviso de quilometragem registrado ainda.</p>')+(history.length?'<button class="btn ghost sm" data-act="alerts-clear">Limpar histórico de avisos</button>':'')+'</div>');
+}
+/* Avisos de passagem de faixa: usa o último serviço de cada item como âncora.
+   Evita notificar repetidamente a cada atualização do GPS. */
+function maintenanceThresholdAlerts(v,previousKm){
+ if(!Number.isFinite(previousKm))return;
+ const current=curKm(v);if(current<=previousKm)return;
+ const alerts=[];
+ for(const s of statuses(v)){
+  if(s.dueKm==null)continue;
+  const boundaries=[{level:1,km:s.dueKm-S.settings.alertKm},{level:2,km:s.dueKm-S.settings.urgentKm},{level:3,km:s.dueKm}];
+  const crossed=boundaries.filter(b=>previousKm<b.km&&current>=b.km).pop();
+  if(!crossed)continue;
+  alerts.push({title:s.it.n,body:maintenanceAlertText(s),level:crossed.level});
+ }
+ if(!alerts.length)return;
+ v.alertHistory=Array.isArray(v.alertHistory)?v.alertHistory:[];
+ const when=new Date().toLocaleString('pt-BR');
+ for(const a of alerts)v.alertHistory.push({title:a.title,message:a.body,level:a.level,when});
+ v.alertHistory=v.alertHistory.slice(-60);save();
+ if(!S.settings.push)return;
+ alerts.sort((a,b)=>b.level-a.level);
+ const a=alerts[0];
+ toast('Manutenção: '+a.title+' — '+(a.level===3?'vencida':a.level===2?'urgente':'atenção'));
+ const LN=ntPlugin();
+ if(LN){
+  ntPerm(false).then(perm=>{
+   if(perm!=='granted')return;
+   return LN.schedule({notifications:[{id:10000+Math.floor(Date.now()/1000)%1000000,
+    title:'KM em Dia · '+(a.level===3?'Manutenção vencida':a.level===2?'Manutenção urgente':'Manutenção próxima'),
+    body:a.title+' — '+a.body+(alerts.length>1?' · +'+(alerts.length-1)+' avisos':''),
+    channelId:'manutencao',smallIcon:'ic_stat_meucarro',iconColor:'#F2C230',
+    schedule:{at:new Date(Date.now()+1500)},extra:{route:'painel'}}]});
+  }).catch(()=>{});
+ }
+}
+
 
 /* ================= Peças de UI ================= */
 function odoHtml(km){
@@ -1046,6 +1179,10 @@ function viewAjustes(){
     num('urgentKm','Urgente a partir de (km)','Faltando poucos km, o alerta fica laranja.',50)+
     num('urgentDays','Urgente a partir de (dias)','Faltando poucos dias, o alerta fica laranja.',1)+
     sw('severe','Uso severo','Trânsito pesado, poeira, trechos curtos. Óleo e filtros avisam com 30% menos intervalo.')+'</section>'+
+   '<section class="card"><div class="card-h"><h2>Odômetro automático · GPS</h2></div>'+
+    '<p class="muted">Veículo: '+esc(v.nick||v.model)+' · '+fmt(curKm(v))+' km. O GPS acrescenta distância a partir da última leitura, inclusive após correção manual. Funciona somente com o app aberto e só conta deslocamentos acima de 15 km/h (ou com o scanner confirmando que o carro está andando).</p>'+
+    '<div class="srow"><div class="t"><b>'+gpsStatus()+'</b><small>Precisão: '+(GPSKM.accuracy==null?'aguardando GPS':Math.round(GPSKM.accuracy)+' m')+'. A distância GPS é estimada e deve ser conferida com o painel.</small></div></div>'+
+    '<div class="actions"><button class="btn" data-act="gps-toggle">'+(GPSKM.watch===null?'Iniciar registro GPS':'Encerrar viagem GPS')+'</button><button class="btn ghost" data-act="odo">Corrigir odômetro</button></div></section>'+
    '<section class="card"><div class="card-h"><h2>Ritmo de uso</h2></div>'+
     '<div class="srow"><div class="t"><b>Como estimar km por dia</b><small>Hoje: '+Math.round(kdi.v)+' km/dia ('+kdi.src+'). Usado para prever a data de cada troca.</small></div><select data-set="kmDayMode" aria-label="Modo do ritmo"><option value="auto"'+(st.kmDayMode==='auto'?' selected':'')+'>Automático</option><option value="manual"'+(st.kmDayMode==='manual'?' selected':'')+'>Manual</option></select></div>'+
     num('kmDayManual','Km por dia (manual)','Usado no modo manual ou quando há poucas leituras.',1)+'</section></div>'+
@@ -1368,7 +1505,8 @@ const OBX={tx:null,kind:'',connected:false,adapter:'',proto:'',vin:'',cal:'',sup
 function obLog(m){OBX.log.unshift(new Date().toLocaleTimeString('pt-BR')+'  '+m);OBX.log=OBX.log.slice(0,60);const el=$('#ob-log');if(el)el.textContent=OBX.log.join('\n')}
 const obSleep=ms=>new Promise(r=>setTimeout(r,ms));
 /* ---------- transportes ---------- */
-function obNativeBridge(){return window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ObdClassic?window.Capacitor.Plugins.ObdClassic:null}
+function capPlug(n){try{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;window.__capP=window.__capP||{};if(window.__capP[n])return window.__capP[n];let p=C.Plugins&&C.Plugins[n];if(!p&&C.registerPlugin)p=C.registerPlugin(n);if(p)window.__capP[n]=p;return p||null}catch(e){return null}}
+function obNativeBridge(){return capPlug('ObdClassic')}
 async function obOpenBle(){
  if(!navigator.bluetooth)throw new Error('Este navegador não tem Web Bluetooth. Use o Chrome/Edge no Android (ou desktop) ou o app Android.');
  const dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:OB_BLE_SVCS});
@@ -1391,7 +1529,7 @@ async function obOpenBle(){
 }
 /* BLE nativo (app Android/Capacitor): o WebView não tem Web Bluetooth, então usa o plugin BluetoothLe */
 async function obOpenCapBle(){
- const BLE=window.Capacitor.Plugins.BluetoothLe;
+ const BLE=capPlug('BluetoothLe');
  await BLE.initialize({androidNeverForLocation:true});
  const dev=await BLE.requestDevice({optionalServices:OB_BLE_SVCS});const id=dev.deviceId;
  await BLE.connect({deviceId:id,timeout:15000});
@@ -1413,13 +1551,29 @@ async function obOpenCapBle(){
    const out=await p;return out.replace(/>/g,'')},
   async close(){try{await BLE.disconnect({deviceId:id})}catch(e){}}};
 }
-function obIsNative(){return !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()&&window.Capacitor.Plugins&&window.Capacitor.Plugins.BluetoothLe)}
+function obIsNative(){return !!capPlug('BluetoothLe')}
+function obChoosePaired(devs){
+ return new Promise(resolve=>{
+  let finished=false;
+  const finish=(dev)=>{if(finished)return;finished=true;closeModal();resolve(dev)};
+  const items=devs.map((d,i)=>'<button type="button" class="btn ghost" data-ob-pick="'+i+'" style="display:block;width:100%;text-align:left;margin:8px 0;white-space:normal"><b>'+esc(d.name||'Dispositivo sem nome')+'</b><small style="display:block;opacity:.7;margin-top:3px">'+esc(d.address||'')+'</small></button>').join('');
+  openModal('<div class="card-h"><h2>Escolher scanner Bluetooth</h2></div><p class="muted" style="margin:10px 0">Selecione um dispositivo já pareado com o Android. Para um novo scanner, pareie primeiro nas configurações Bluetooth do aparelho (PIN comum: 1234 ou 0000).</p><div style="max-height:48vh;overflow:auto">'+items+'</div><div class="actions" style="margin-top:14px"><button type="button" class="btn ghost" data-ob-cancel>Cancelar</button></div>',root=>{
+   root.querySelectorAll('[data-ob-pick]').forEach(btn=>btn.addEventListener('click',()=>finish(devs[Number(btn.dataset.obPick)])));
+   root.querySelector('[data-ob-cancel]').addEventListener('click',()=>finish(null));
+   const observer=new MutationObserver(()=>{if(!root.firstChild){observer.disconnect();finish(null)}});
+   observer.observe(root,{childList:true});
+   // A janela também pode ser fechada pela tecla Esc ou pelo fundo.
+  });
+ });
+}
 async function obOpenNative(){
  const b=obNativeBridge();if(!b)throw new Error('Scanner clássico exige o app Android instalado (plugin ObdClassic).');
  if(b.ensurePermissions)await b.ensurePermissions();
- const r=await b.listPairedDevices();const devs=r.devices||[];
- if(!devs.length)throw new Error('Nenhum scanner pareado. Pareie o ELM327 nas configurações Bluetooth do Android (PIN 1234 ou 0000).');
- const pick=devs.find(d=>/obd|elm|vgate|veepeak|icar|konnwei|v-link/i.test(d.name||''))||devs[0];
+ const r=await b.listPairedDevices();const devs=(r.devices||[]).filter(d=>d&&d.address);
+ if(!devs.length)throw new Error('Nenhum dispositivo Bluetooth pareado. Pareie o ELM327 nas configurações do Android (PIN 1234 ou 0000) e tente novamente.');
+ const pick=await obChoosePaired(devs);
+ if(!pick){const e=new Error('Seleção cancelada');e.name='NotFoundError';throw e}
+ OBX.busy='Conectando a '+(pick.name||'scanner')+'…';render();
  await b.connect({address:pick.address});
  return {name:pick.name||'ELM327',
   async send(cmd,timeout){const r=await b.sendCommand({command:cmd,timeout:timeout||4000});return String(r.response||'')},
@@ -1532,7 +1686,7 @@ async function obConnect(kind){
   try{await obReadReady()}catch(e){}
   OBX.busy='';render();toast(OBX.sup.size?'Scanner conectado · '+OBX.sup.size+' parâmetros suportados':'Conectado, mas sem resposta da central');
   if(OBX.sup.size)obStartLive();
- }catch(e){OBX.busy='';OBX.connected=false;if(OBX.tx){try{await OBX.tx.close()}catch(_){}OBX.tx=null}obLog('Falha: '+(e.message||e));render();toast(e.name==='NotFoundError'?'Nenhum dispositivo selecionado':(e.message||'Falha ao conectar').slice(0,120))}
+ }catch(e){OBX.busy='';OBX.connected=false;if(OBX.tx){try{await OBX.tx.close()}catch(_){}OBX.tx=null}obLog('Falha: '+(e.message||e));render();if(e.name!=='NotFoundError')toast((e.message||'Falha ao conectar').slice(0,120))}
 }
 function obAfterDrop(){OBX.live=false;OBX.loopId++;OBX.connected=false;OBX.tx=null;OBX.rec&&obStopRec();render()}
 async function obDisconnect(){OBX.live=false;OBX.loopId++;if(OBX.tst.run)OBX.tst.run.abort=true;if(OBX.modRun)OBX.modRun.abort=true;if(OBX.rec)obStopRec();const t=OBX.tx;OBX.tx=null;OBX.connected=false;try{if(t)await t.close()}catch(e){}obLog('Scanner desconectado.');render()}
@@ -2255,7 +2409,7 @@ function pushPreview(){
 }
 /* ================= Notificações (app Android: agendadas no aparelho · navegador: ao abrir) ================= */
 const NT={perm:null,timer:null,ready:false};
-function ntPlugin(){try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications?C.Plugins.LocalNotifications:null}catch(e){return null}}
+function ntPlugin(){return capPlug('LocalNotifications')}
 function ntHM(){const m=String(S.settings.hour||'08:00').match(/^(\d{1,2}):(\d{2})$/);return m?[Math.min(23,+m[1]),Math.min(59,+m[2])]:[8,0]}
 function ntAt(d){const h=ntHM();return new Date(d.getFullYear(),d.getMonth(),d.getDate(),h[0],h[1],0,0)}
 /* monta a lista de avisos futuros (agrupados por veículo e dia) */
@@ -2265,10 +2419,10 @@ function ntBuild(){
  for(const v of S.vehicles){
   const kd=kmDayInfo(v).v;
   for(const s of statuses(v)){
-   const n=s.it.n,det=s.remKm!=null&&s.lk>=s.lt?'faltam '+fmt(Math.max(0,s.remKm))+' km':(s.dueDate?'vence em '+fdate(s.dueDate):'');
-   if(s.level===3)[1,8,15,22].forEach(k=>push(v,addDays(TODAY,k),n+': prazo vencido',3));
-   else if(s.level===2)[1,4,8].forEach(k=>push(v,addDays(TODAY,k),n+': urgente'+(det?' ('+det+')':''),2));
-   else if(s.level===1)push(v,addDays(TODAY,1),n+': '+det,1);
+   const n=s.it.n,det=maintenanceAlertText(s);
+   if(s.level===3)[1,8,15,22].forEach(k=>push(v,addDays(TODAY,k),n+': vencida · '+det,3));
+   else if(s.level===2)[1,4,8].forEach(k=>push(v,addDays(TODAY,k),n+': urgente · '+det,2));
+   else if(s.level===1)push(v,addDays(TODAY,1),n+': atenção · '+det,1);
    const cross=(thK,thD)=>{let c=null;if(s.remKm!=null&&s.remKm>thK)c=addDays(TODAY,Math.ceil((s.remKm-thK)/kd));if(s.dueDate&&s.remDays>thD){const t=addDays(s.dueDate,-thD);if(!c||t<c)c=t}return c};
    const prev=s.est?' · previsto para '+fdate(s.est):'';
    if(s.level<1)push(v,cross(st.alertKm,st.alertDays),n+': se aproximando'+prev,1);
@@ -2284,7 +2438,7 @@ function ntBuild(){
  }
  return Object.keys(map).map(k=>map[k]).sort((a,b)=>a.at-b.at).map(e=>{
   const multi=S.vehicles.length>1,nick=e.v.nick||e.v.model||'Veículo',L=e.lines.map((x,i)=>({t:x.t,lv:x.lv,i:i})).sort((a,b)=>b.lv-a.lv||a.i-b.i).map(x=>x.t);
-  return {at:e.at,lvl:e.lvl,title:'Meu Carro'+(multi?' · '+nick:''),body:L.slice(0,3).join('\n')+(L.length>3?'\n+'+(L.length-3)+' outros avisos':'')};
+  return {at:e.at,lvl:e.lvl,title:'KM em Dia · '+(e.lvl===3?'Manutenção vencida':e.lvl===2?'Atenção urgente':'Lembrete')+(multi?' · '+nick:''),body:L.slice(0,3).join('\n')+(L.length>3?'\n+'+(L.length-3)+' outros avisos':'')};
  });
 }
 async function ntCancelAll(LN){try{const p=await LN.getPending();if(p&&p.notifications&&p.notifications.length)await LN.cancel({notifications:p.notifications.map(n=>({id:n.id}))})}catch(e){}}
@@ -2348,7 +2502,7 @@ function ntInit(){
  ntPerm(false).then(()=>{ntKick()});
  const LN=ntPlugin();
  if(LN&&LN.addListener){try{LN.addListener('localNotificationActionPerformed',e=>{const r=e&&e.notification&&e.notification.extra&&e.notification.extra.route;location.hash='#'+(r||'painel')})}catch(e){}}
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(new Date().toDateString()!==TODAY.toDateString()){location.reload();return}ntKick()}});
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&GPSKM.watch!==null){gpsFlush();gpsStop();}if(document.visibilityState==='visible'){if(new Date().toDateString()!==TODAY.toDateString()){location.reload();return}ntKick()}});
 }
 
 const sheetHead=(t)=>'<div class="sheet-h"><h2>'+t+'</h2><button class="icon-btn flat" data-act="close" aria-label="Fechar">'+ic('x')+'</button></div>';
@@ -2413,10 +2567,11 @@ function odoModal(){
 function saveOdo(f){
   const fd=new FormData(f),km=Number(fd.get('km')),date=fd.get('date'),err=$('#o-err'),v=V();
   if(!date||date>iso(TODAY)){err.textContent='Informe uma data válida, sem datas futuras.';return}
-  const before=readings(v).filter(r=>r.date<=date).pop(),after=readings(v).filter(r=>r.date>date)[0];
+  const before=readings(v).filter(r=>r.date<date).pop(),after=readings(v).filter(r=>r.date>date)[0];
   if(before&&km<before.km){err.textContent='O valor é menor que a leitura anterior ('+fmt(before.km)+' km em '+fdate(parse(before.date))+').';return}
   if(after&&km>after.km){err.textContent='O valor é maior que uma leitura posterior ('+fmt(after.km)+' km).';return}
-  v.odo=(v.odo||[]).filter(r=>r.date!==date);v.odo.push({date:date,km:km});
+  if(GPSKM.watch!==null){gpsStop();toast('GPS pausado após ajuste manual. Reinicie a viagem para continuar.');}
+  v.odo=(v.odo||[]).filter(r=>r.date!==date);v.odo.push({date:date,km:km,source:'manual'});
   save();closeModal();render();toast('Odômetro atualizado para '+fmt(km)+' km');
 }
 
@@ -2482,6 +2637,7 @@ document.addEventListener('click',e=>{
     case 'rec-del-no':UI.del=null;render();break;
     case 'rec-del-yes':v.records=v.records.filter(r=>r.id!==el.dataset.id);UI.del=null;save();render();toast('Registro excluído');break;
     case 'odo':odoModal();break;
+    case 'gps-toggle':if(GPSKM.watch===null)gpsStart();else{gpsFlush();gpsStop();render();toast('Viagem GPS encerrada.');}break;
     case 'fuel-new':fuelModal(null);break;
     case 'expense-new':extraModal(null);break;
     case 'expense-edit':extraModal(el.dataset.id);break;
@@ -2493,11 +2649,12 @@ document.addEventListener('click',e=>{
     case 'af':UI.af=el.dataset.v;render();break;
     case 'plan-reset':{const it=ITEM[el.dataset.id];v.plan[it.id]=Object.assign(v.plan[it.id]||{on:false},{km:it.km,mo:it.mo});save();render();toast('Intervalo padrão restaurado')}break;
     case 'veh-add':vehModal();break;
-    case 'veh-use':S.activeId=el.dataset.id;save();render();toast('Veículo ativo trocado');break;
+    case 'veh-use':if(GPSKM.watch!==null){gpsFlush();gpsStop();}S.activeId=el.dataset.id;save();render();toast('Veículo ativo trocado');break;
     case 'veh-del':UI.delVeh=el.dataset.id;render();break;
     case 'veh-del-no':UI.delVeh=null;render();break;
     case 'veh-del-yes':S.vehicles=S.vehicles.filter(x=>x.id!==el.dataset.id);if(!S.vehicles.some(x=>x.id===S.activeId))S.activeId=S.vehicles[0].id;UI.delVeh=null;save();render();toast('Veículo excluído');break;
-    case 'bell':if(location.hash!=='#painel'&&location.hash!=='')location.hash='#painel';setTimeout(()=>{const t=$('#alertas');if(t)t.scrollIntoView({behavior:'smooth',block:'start'})},60);break;
+    case 'bell':alertCenter();break;
+    case 'alerts-clear':V().alertHistory=[];save();alertCenter();break;
     case 'push':ntTest();break;
     case 'csv-clear':CSV_DIAG.raw=null;CSV_DIAG.report=null;CSV_DIAG.error='';render();break;
     case 'csv-export':csvExport();break;
@@ -2721,7 +2878,6 @@ try{fetch('dados/oleos.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).the
 onRoute(false);ntInit();
 })();
 </script>
-<script>if("serviceWorker"in navigator){addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){})})}</script>
 <script>
 /* Catálogo unificado: FIPE v2 + fallback v1, sem chave no navegador. */
 (function(){
@@ -2744,5 +2900,6 @@ onRoute(false);ntInit();
  const observer=new MutationObserver(()=>{if($('api-brand')&&!initialized){initialized=true;mode='v2';load(0)}else if(!$('api-brand'))initialized=false});observer.observe(document.body,{childList:true,subtree:true});if($('api-brand')){initialized=true;load(0)}
 })();
 </script>
+<script>if("serviceWorker"in navigator){addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){})})}</script>
 </body>
 </html>
