@@ -1,0 +1,349 @@
+{
+ "vehicles": [
+  {
+   "id": "v1",
+   "nick": "Ford Focus do dia a dia",
+   "make": "Ford",
+   "model": "Focus",
+   "version": "Hatch 2.0 Duratec",
+   "yearMfg": "2012",
+   "yearModel": "2012",
+   "color": "Prata",
+   "plate": "EYO5H4",
+   "fuel": "Flex",
+   "engine": "2.0 Duratec 16V",
+   "power": "140cv",
+   "gearbox": "Manual 5 marchas",
+   "vin": "",
+   "oilCap": "4,3 L",
+   "oilSpec": "SAE 5W-30 · Ford WSS-M2C913-B/A",
+   "oilFilterRef": "",
+   "gearOilSpec": "SAE 75W-90 sintético · Ford WSD-M2C200-C2",
+   "gearOilCap": "2,3 L",
+   "gearOilSource": "https://www.fordservicecontent.com/Ford_Content/Catalog/owner_information/Focus_2012.pdf",
+   "tire": "205/55 R16 (confirmar no veículo)",
+   "pressF": "30 psi (2,1 bar) · até 2 pessoas",
+   "pressR": "30 psi (2,1 bar) · até 2 pessoas",
+   "battery": "Moura 65Ah",
+   "tank": "55 L",
+   "purchase": "2025-12-05",
+   "initialKm": 95432,
+   "docs": {
+    "licensing": "2027-01-15",
+    "ipva": "2027-01-31",
+    "insurance": "2027-01-15"
+   },
+   "plan": {
+    "oil": {
+     "on": true,
+     "km": 10000,
+     "mo": 12
+    },
+    "oilf": {
+     "on": true,
+     "km": 10000,
+     "mo": 12
+    },
+    "airf": {
+     "on": true,
+     "km": 20000,
+     "mo": 24
+    },
+    "fuelf": {
+     "on": true,
+     "km": 30000,
+     "mo": 36
+    },
+    "spark": {
+     "on": true,
+     "km": 40000,
+     "mo": 48
+    },
+    "coolant": {
+     "on": true,
+     "km": 40000,
+     "mo": 36
+    },
+    "timing": {
+     "on": true,
+     "km": 60000,
+     "mo": 60
+    },
+    "accbelt": {
+     "on": true,
+     "km": 60000,
+     "mo": null
+    },
+    "brakef": {
+     "on": true,
+     "km": null,
+     "mo": 24
+    },
+    "pads": {
+     "on": true,
+     "km": 30000,
+     "mo": null
+    },
+    "discs": {
+     "on": true,
+     "km": 60000,
+     "mo": null
+    },
+    "gearoil": {
+     "on": true,
+     "km": 60000,
+     "mo": null
+    },
+    "tirerot": {
+     "on": true,
+     "km": 10000,
+     "mo": 6
+    },
+    "align": {
+     "on": true,
+     "km": 10000,
+     "mo": 12
+    },
+    "tires": {
+     "on": true,
+     "km": 50000,
+     "mo": 60
+    },
+    "susp": {
+     "on": true,
+     "km": 60000,
+     "mo": null
+    },
+    "battery": {
+     "on": true,
+     "km": null,
+     "mo": 48
+    },
+    "cabf": {
+     "on": true,
+     "km": 10000,
+     "mo": 12
+    },
+    "wipers": {
+     "on": true,
+     "km": null,
+     "mo": 12
+    }
+   },
+   "odo": [
+    {
+     "date": "2026-11-20",
+     "km": 105092,
+     "source": "manual"
+    },
+    {
+     "date": "2026-11-21",
+     "km": 105095,
+     "source": "manual"
+    },
+    {
+     "date": "2026-11-28",
+     "km": 105182,
+     "source": "manual"
+    }
+   ],
+   "records": [
+    {
+     "id": "nnamgst",
+     "date": "2026-07-08",
+     "km": 102432,
+     "items": [
+      "oil",
+      "oilf",
+      "airf",
+      "fuelf",
+      "spark",
+      "accbelt",
+      "brakef",
+      "gearoil",
+      "tirerot",
+      "cabf",
+      "wipers"
+     ],
+     "other": "troca coxim cambio, troca correia acessórios",
+     "cost": 1950,
+     "cat": "Preventiva",
+     "shop": "Em Casa",
+     "prod": "5w30 Motorcraft, 75w140 Motul, coxim cambio",
+     "notes": "Mangueira Filtro de Ar\nHaste Antena\nPar Moldura Farol de Milha\nMultimidia Novo"
+    }
+   ],
+   "gearCode": "",
+   "gearOilInterval": "50.000",
+   "fuelEntries": [
+    {
+     "id": "zrpuzop",
+     "date": "2026-10-30",
+     "km": 104667,
+     "liters": 25,
+     "cost": 150,
+     "full": false,
+     "fuel": "Gasolina"
+    },
+    {
+     "id": "4r4uxyv",
+     "date": "2026-11-19",
+     "km": 105092,
+     "liters": 17,
+     "cost": 100,
+     "full": false,
+     "fuel": "Gasolina"
+    }
+   ]
+  },
+  {
+   "id": "v2",
+   "nick": "Caravan 2.5 1983 · carro secundário",
+   "make": "Chevrolet",
+   "model": "Caravan",
+   "version": "2.5",
+   "yearMfg": "1983",
+   "yearModel": "1983",
+   "color": "",
+   "plate": "",
+   "fuel": "",
+   "engine": "2.5",
+   "power": "",
+   "gearbox": "",
+   "vin": "",
+   "oilCap": "",
+   "oilSpec": "",
+   "oilFilterRef": "",
+   "tire": "",
+   "pressF": "",
+   "pressR": "",
+   "battery": "",
+   "tank": "",
+   "purchase": "",
+   "initialKm": 0,
+   "docs": {
+    "licensing": "",
+    "ipva": "",
+    "insurance": ""
+   },
+   "plan": {
+    "oil": {
+     "on": true,
+     "km": 10000,
+     "mo": 12
+    },
+    "oilf": {
+     "on": true,
+     "km": 10000,
+     "mo": 12
+    },
+    "airf": {
+     "on": true,
+     "km": 20000,
+     "mo": 24
+    },
+    "fuelf": {
+     "on": true,
+     "km": 30000,
+     "mo": 36
+    },
+    "spark": {
+     "on": true,
+     "km": 40000,
+     "mo": 48
+    },
+    "coolant": {
+     "on": true,
+     "km": 40000,
+     "mo": 36
+    },
+    "timing": {
+     "on": true,
+     "km": 60000,
+     "mo": 60
+    },
+    "accbelt": {
+     "on": true,
+     "km": 60000,
+     "mo": null
+    },
+    "brakef": {
+     "on": true,
+     "km": null,
+     "mo": 24
+    },
+    "pads": {
+     "on": true,
+     "km": 30000,
+     "mo": null
+    },
+    "discs": {
+     "on": true,
+     "km": 60000,
+     "mo": null
+    },
+    "gearoil": {
+     "on": true,
+     "km": 60000,
+     "mo": null
+    },
+    "tirerot": {
+     "on": true,
+     "km": 10000,
+     "mo": 6
+    },
+    "align": {
+     "on": true,
+     "km": 10000,
+     "mo": 12
+    },
+    "tires": {
+     "on": true,
+     "km": 50000,
+     "mo": 60
+    },
+    "susp": {
+     "on": true,
+     "km": 60000,
+     "mo": null
+    },
+    "battery": {
+     "on": true,
+     "km": null,
+     "mo": 48
+    },
+    "cabf": {
+     "on": true,
+     "km": 10000,
+     "mo": 12
+    },
+    "wipers": {
+     "on": true,
+     "km": null,
+     "mo": 12
+    }
+   },
+   "odo": [],
+   "records": []
+  }
+ ],
+ "activeId": "v1",
+ "settings": {
+  "alertKm": 1500,
+  "alertDays": 30,
+  "urgentKm": 500,
+  "urgentDays": 7,
+  "severe": false,
+  "kmDayMode": "auto",
+  "kmDayManual": 25,
+  "push": true,
+  "email": false,
+  "weekly": true,
+  "hour": "08:00"
+ },
+ "meta": {
+  "schema": 2,
+  "updatedAt": 1795877328313,
+  "lastExport": 1795189518147
+ }
+}
